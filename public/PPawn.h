@@ -5,7 +5,7 @@
 //#include "CoreMinimal.h"
 #include "Upgrade.h"
 #include "GameFramework/Pawn.h"
-#include "GameFramework/FloatingPawnMovement.h";
+#include "GameFramework/FloatingPawnMovement.h"
 #include "PPawn.generated.h"
 
 UCLASS()
