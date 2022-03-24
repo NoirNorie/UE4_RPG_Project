@@ -31,6 +31,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// 캐릭터 표현에 사용할 요소들
 	UPROPERTY(VisibleAnywhere, Category = Collision)
 		UCapsuleComponent* Capsule;
 	UPROPERTY(VisibleAnywhere, Category = Visual)

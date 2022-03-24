@@ -28,15 +28,14 @@ APPawn::APPawn()
 	SpringArm->SetRelativeRotation(FRotator(-15.0f, 0.0f, 0.0f));
 
 	// 스켈레탈 메시와 연결
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(
-		TEXT("SkeletalMesh'/Game/Import/GKnight/Meshes/SK_GothicKnight_VA.SK_GothicKnight_VA'"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/Import/GKnight/Meshes/SK_GothicKnight_VA.SK_GothicKnight_VA'"));
 	if (SK_Character.Succeeded()) Mesh->SetSkeletalMesh(SK_Character.Object);
 
 	// 스켈레탈 메시의 애니메이션 모드 연결
 	Mesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 
 	static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(
-		TEXT("AnimBlueprint'/Game/PlayerCharacter/Animations/PlayerAnimation.PlayerAnimation'"));
+		TEXT("/Game/PlayerCharacter/Animations/PlayerAnimation.PlayerAnimation_C"));
 	if (Character_Anim.Succeeded()) Mesh->SetAnimInstanceClass(Character_Anim.Class);
 
 
