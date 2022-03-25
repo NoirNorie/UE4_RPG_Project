@@ -35,6 +35,7 @@ APCharacter::APCharacter()
 
 	ArmLengthSpeed = 3.0f;
 	ArmRotationSpeed = 10.0f;
+	GetCharacterMovement()->JumpZVelocity = 800.0f;
 }
 
 // Called when the game starts or when spawned
@@ -89,7 +90,8 @@ void APCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 
 	PlayerInputComponent->BindAction(TEXT("ViewChange"), EInputEvent::IE_Pressed, this, &APCharacter::ViewChange);
-
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &APCharacter::Jump);
+	PlayerInputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &APCharacter::Attack);
 }
 
 void APCharacter::SetControlMode(EControlMode NewControlMode)
@@ -205,4 +207,14 @@ void APCharacter::ViewChange()
 		SetControlMode(EControlMode::GTA);
 		break;
 	}
+}
+
+void APCharacter::Jump()
+{
+
+}
+
+void APCharacter::Attack()
+{
+	ABLOG_S(Warning);
 }

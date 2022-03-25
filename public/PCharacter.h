@@ -65,7 +65,10 @@ private:
 	void LeftRight(float NexAxisValue);
 	void LookUp(float NewAxisValue);
 	void Turn(float NewAxisValue);
-
+	
+	// 액션 바인드
 	void ViewChange();
+	void Jump();
+	void Attack();
 
 };
