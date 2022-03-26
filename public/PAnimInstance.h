@@ -17,10 +17,16 @@ class UPGRADE_API UPAnimInstance : public UAnimInstance
 public:
 	UPAnimInstance();
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+	void PlayAttackMontage();
+
 private:
 	// AllowPrivateAccess = true : 프라이빗 접근 허용
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 		float CurrentPawnSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = trie))
 		bool IsInAir; // 공중에 있는지 판정할 함수
+	// 애니메이션 몽타주
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+		UAnimMontage* AttackMontage;
 };

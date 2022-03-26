@@ -68,7 +68,7 @@ private:
 	
 	// 액션 바인드
 	void ViewChange();
-	void Jump();
+	// void Jump(); // 점프 함수는 캐릭터 클래스에 이미 존재한다.
 	void Attack();
 
 };

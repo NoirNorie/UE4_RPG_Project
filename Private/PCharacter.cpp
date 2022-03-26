@@ -2,6 +2,7 @@
 
 
 #include "PCharacter.h"
+#include "PAnimInstance.h"
 
 // Sets default values
 APCharacter::APCharacter()
@@ -209,12 +210,12 @@ void APCharacter::ViewChange()
 	}
 }
 
-void APCharacter::Jump()
-{
-
-}
-
 void APCharacter::Attack()
 {
 	ABLOG_S(Warning);
+
+	auto AnimInstance = Cast<UPAnimInstance>(GetMesh()->GetAnimInstance());
+	if (nullptr == AnimInstance) return;
+	AnimInstance->PlayAttackMontage();
+
 }

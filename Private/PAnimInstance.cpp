@@ -7,6 +7,11 @@ UPAnimInstance::UPAnimInstance()
 {
 	CurrentPawnSpeed = 0.0f;
 	IsInAir = false;
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage(
+		TEXT("AnimMontage'/Game/PlayerCharacter/Animations/SwordAttackMontage.SwordAttackMontage'"));
+	if (Attack_Montage.Succeeded()) AttackMontage = Attack_Montage.Object;
+
 }
 
 void UPAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -25,7 +30,13 @@ void UPAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		{
 			IsInAir = Character->GetMovementComponent()->IsFalling();
 		}
-
 	}
+}
 
+void UPAnimInstance::PlayAttackMontage()
+{
+	if (!Montage_IsPlaying(AttackMontage))
+	{
+		Montage_Play(AttackMontage, 1.0f);
+	}
 }
