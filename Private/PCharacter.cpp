@@ -33,10 +33,16 @@ APCharacter::APCharacter()
 	if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
 
 	SetControlMode(EControlMode::DIABLO);
-
+	// 화면 전환시 조작 속도와 회전 속도
 	ArmLengthSpeed = 3.0f;
 	ArmRotationSpeed = 10.0f;
 	GetCharacterMovement()->JumpZVelocity = 800.0f;
+
+	IsAttacking = false;
+
+	MaxCombo = 4;
+	AttackEndComboState();
+
 }
 
 // Called when the game starts or when spawned
@@ -44,6 +50,28 @@ void APCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void APCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	//auto AnimInstance = Cast<UPAnimInstance>(GetMesh()->GetAnimInstance());
+
+	PlayerAnim = Cast<UPAnimInstance>(GetMesh()->GetAnimInstance());
+	ABCHECK(nullptr != PlayerAnim);
+	PlayerAnim->OnMontageEnded.AddDynamic(this, &APCharacter::OnAttackMontageEnded);
+
+
+	PlayerAnim->OnNextAttackCheck.AddLambda([this]()->void {
+		ABLOG(Warning, TEXT("OnNextAttackCheck"));
+		CanNextCombo = false;
+		if (IsComboInputOn)
+		{
+			AttackStartComboState();
+			PlayerAnim->JumpToAttackMontageSection(CurrentCombo);
+		}
+		});
 }
 
 // Called every frame
@@ -76,6 +104,8 @@ void APCharacter::Tick(float DeltaTime)
 	}
 
 }
+
+
 
 // Called to bind functionality to input
 void APCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -214,8 +244,47 @@ void APCharacter::Attack()
 {
 	ABLOG_S(Warning);
 
-	auto AnimInstance = Cast<UPAnimInstance>(GetMesh()->GetAnimInstance());
-	if (nullptr == AnimInstance) return;
-	AnimInstance->PlayAttackMontage();
+	if (IsAttacking == true)
+	{
+		ABCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 1, MaxCombo));
+		if (CanNextCombo) IsComboInputOn = true;
+	}
+	else
+	{
+		ABCHECK(CurrentCombo == 0);
+		AttackStartComboState();
+		PlayerAnim->PlayAttackMontage();
+		PlayerAnim->JumpToAttackMontageSection(CurrentCombo);
+		IsAttacking = true;
+	}
 
+	//auto AnimInstance = Cast<UPAnimInstance>(GetMesh()->GetAnimInstance());
+	//if (nullptr == AnimInstance) return;
+
+	//AnimInstance->PlayAttackMontage();
+	PlayerAnim->PlayAttackMontage();
+	IsAttacking = true;
+
+}
+void APCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	ABCHECK(IsAttacking);
+	ABCHECK(CurrentCombo > 0);
+	IsAttacking = false;
+	AttackEndComboState();
+}
+
+void APCharacter::AttackStartComboState()
+{
+	CanNextCombo = true;
+	IsComboInputOn = false;
+	ABCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 0, MaxCombo - 1));
+	CurrentCombo = FMath::Clamp<int32>(CurrentCombo + 1, 1, MaxCombo);
+}
+
+void APCharacter::AttackEndComboState()
+{
+	IsComboInputOn = false;
+	CanNextCombo = false;
+	CurrentCombo = 0;
 }

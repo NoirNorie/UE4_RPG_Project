@@ -35,8 +35,34 @@ void UPAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 void UPAnimInstance::PlayAttackMontage()
 {
-	if (!Montage_IsPlaying(AttackMontage))
-	{
-		Montage_Play(AttackMontage, 1.0f);
-	}
+	//if (!Montage_IsPlaying(AttackMontage))
+	//{
+	//	Montage_Play(AttackMontage, 1.0f);
+	//}
+	Montage_Play(AttackMontage, 1.0f);
+}
+
+void UPAnimInstance::JumpToAttackMontageSection(int32 NewSection)
+{
+	ABCHECK(Montage_IsPlaying(AttackMontage));
+	Montage_JumpToSection(GetAttackMontageSectionName(NewSection), AttackMontage);
+}
+
+
+// 노티파이 함수
+void UPAnimInstance::AnimNotify_AttackHitCheck()
+{
+	// ABLOG_S(Warning);
+	OnAttackHitCheck.Broadcast();
+}
+
+void UPAnimInstance::AnimNotify_NextAttacCheck()
+{
+	OnNextAttackCheck.Broadcast();
+}
+
+FName UPAnimInstance::GetAttackMontageSectionName(int32 Section)
+{
+	ABCHECK(FMath::IsWithinInclusive<int32>(Section, 1, 4), NAME_None);
+	return FName(*FString::Printf(TEXT("Attack%d"), Section));
 }

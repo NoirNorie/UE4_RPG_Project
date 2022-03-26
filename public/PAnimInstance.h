@@ -7,6 +7,9 @@
 #include "Animation/AnimInstance.h"
 #include "PAnimInstance.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnNextAttackCheckDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnAttackHitCheckDelegate);
+
 /**
  * 
  */
@@ -20,7 +23,16 @@ public:
 
 	void PlayAttackMontage();
 
+	void JumpToAttackMontageSection(int32 NewSection);
+
+	// 델리게이트
+	FOnNextAttackCheckDelegate OnNextAttackCheck;
+	FOnAttackHitCheckDelegate OnAttackHitCheck;
+
 private:
+
+
+
 	// AllowPrivateAccess = true : 프라이빗 접근 허용
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 		float CurrentPawnSpeed;
@@ -29,4 +41,14 @@ private:
 	// 애니메이션 몽타주
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		UAnimMontage* AttackMontage;
+
+	// 노티파이
+	UFUNCTION()
+		void AnimNotify_AttackHitCheck();
+	UFUNCTION()
+		void AnimNotify_NextAttacCheck();
+
+	FName GetAttackMontageSectionName(int32 Section);
+
+
 };

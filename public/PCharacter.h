@@ -27,6 +27,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// 조작 방법을 기록할 열거형
 	enum class EControlMode
 	{
 		GTA,
@@ -52,6 +53,8 @@ public:
 
 	// 플레이어 조작을 바인딩할 함수(엔진 함수)
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void PostInitializeComponents() override;
+
 
 	// 카메라
 	UPROPERTY(VisibleAnywhere, category = Camera)
@@ -70,5 +73,26 @@ private:
 	void ViewChange();
 	// void Jump(); // 점프 함수는 캐릭터 클래스에 이미 존재한다.
 	void Attack();
+
+
+	UPROPERTY()
+		class UPAnimInstance* PlayerAnim;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+		bool IsAttacking;
+	UFUNCTION()
+		void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	void AttackStartComboState();
+	void AttackEndComboState();
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+		bool CanNextCombo;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+		bool IsComboInputOn;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+		int32 CurrentCombo;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+		int32 MaxCombo;
 
 };
