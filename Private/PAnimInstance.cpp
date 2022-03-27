@@ -7,6 +7,7 @@ UPAnimInstance::UPAnimInstance()
 {
 	CurrentPawnSpeed = 0.0f;
 	IsInAir = false;
+	IsDead = false;
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage(
 		TEXT("AnimMontage'/Game/PlayerCharacter/Animations/SwordAttackMontage.SwordAttackMontage'"));
@@ -18,11 +19,12 @@ void UPAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 	auto Pawn = TryGetPawnOwner();
+	if (!::IsValid(Pawn)) return; // 폰을 얻어오지 못하는 경우 강제반환한다.
 	/*
 		엔진은 틱마다 입력 시스템->게임 로직-> 애니메이션 시스템 순으로 로직 실행
 		- 플레이어에게 입력을 받고 폰을 움직이게 하고 폰의 최종 움직임과 애니메이션을 연결하는 개념
 	*/
-	if (::IsValid(Pawn))
+	if (!IsDead) // 사망하지 않은 경우에만 처리한다.
 	{
 		CurrentPawnSpeed = Pawn->GetVelocity().Size();
 		auto Character = Cast<ACharacter>(Pawn);
@@ -33,17 +35,25 @@ void UPAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 }
 
+void UPAnimInstance::SetDeadAnim()
+{
+	IsDead = true;
+}
+
+
 void UPAnimInstance::PlayAttackMontage()
 {
 	//if (!Montage_IsPlaying(AttackMontage))
 	//{
 	//	Montage_Play(AttackMontage, 1.0f);
 	//}
+	ABCHECK(!IsDead);
 	Montage_Play(AttackMontage, 1.0f);
 }
 
 void UPAnimInstance::JumpToAttackMontageSection(int32 NewSection)
 {
+	ABCHECK(!IsDead);
 	ABCHECK(Montage_IsPlaying(AttackMontage));
 	Montage_JumpToSection(GetAttackMontageSectionName(NewSection), AttackMontage);
 }
@@ -56,7 +66,7 @@ void UPAnimInstance::AnimNotify_AttackHitCheck()
 	OnAttackHitCheck.Broadcast();
 }
 
-void UPAnimInstance::AnimNotify_NextAttacCheck()
+void UPAnimInstance::AnimNotify_NextAttackCheck()
 {
 	OnNextAttackCheck.Broadcast();
 }

@@ -3,6 +3,7 @@
 
 #include "PCharacter.h"
 #include "PAnimInstance.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 APCharacter::APCharacter()
@@ -38,10 +39,16 @@ APCharacter::APCharacter()
 	ArmRotationSpeed = 10.0f;
 	GetCharacterMovement()->JumpZVelocity = 800.0f;
 
-	IsAttacking = false;
 
-	MaxCombo = 4;
+	// 공격용 함수
+	IsAttacking = false;
+	MaxCombo = 3; // 기본적으로 세번 때림
 	AttackEndComboState();
+
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PlayerCharacter"));
+
+	AttackRange = 200.0f;
+	AttackRadius = 50.0f;
 
 }
 
@@ -72,6 +79,9 @@ void APCharacter::PostInitializeComponents()
 			PlayerAnim->JumpToAttackMontageSection(CurrentCombo);
 		}
 		});
+
+	PlayerAnim->OnAttackHitCheck.AddUObject(this, &APCharacter::AttackCheck);
+	// 공격 판정을 위해 애니메이션에 전달해준다.
 }
 
 // Called every frame
@@ -244,7 +254,7 @@ void APCharacter::Attack()
 {
 	ABLOG_S(Warning);
 
-	if (IsAttacking == true)
+	if (IsAttacking)
 	{
 		ABCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 1, MaxCombo));
 		if (CanNextCombo) IsComboInputOn = true;
@@ -257,15 +267,8 @@ void APCharacter::Attack()
 		PlayerAnim->JumpToAttackMontageSection(CurrentCombo);
 		IsAttacking = true;
 	}
-
-	//auto AnimInstance = Cast<UPAnimInstance>(GetMesh()->GetAnimInstance());
-	//if (nullptr == AnimInstance) return;
-
-	//AnimInstance->PlayAttackMontage();
-	PlayerAnim->PlayAttackMontage();
-	IsAttacking = true;
-
 }
+
 void APCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	ABCHECK(IsAttacking);
@@ -287,4 +290,61 @@ void APCharacter::AttackEndComboState()
 	IsComboInputOn = false;
 	CanNextCombo = false;
 	CurrentCombo = 0;
+}
+
+void APCharacter::AttackCheck()
+{
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+	bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 200.0f,
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel2, // 플레이어의 공격이므로 플레이어의 공격 트레이스 채널인 2번 트레이스 채널을 사용함
+		FCollisionShape::MakeSphere(50.0f), // 구체 모양의 충돌 도형을 생성하여 충돌을 확인한다.
+		Params);
+
+
+	// 디버그 드로잉
+#if ENABLE_DRAW_DEBUG
+	FVector TraceVec = GetActorForwardVector() * AttackRange;
+	FVector Center = GetActorLocation() + TraceVec * 0.5f;
+
+	float HalfHeight = AttackRange *0.5f + AttackRadius;
+	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
+	FColor DrawColor = bResult ? FColor::Green : FColor::Red;
+	float DebugLiftTime = 5.0f;
+
+	DrawDebugCapsule(GetWorld(), Center, HalfHeight, AttackRadius, CapsuleRot, DrawColor, false, DebugLiftTime);
+
+#endif
+
+	// 충돌한 개체가 있다면
+	if (bResult)
+	{
+		if (HitResult.Actor.IsValid())
+		{
+			ABLOG(Warning, TEXT("Hit Actor Name : %s"), *HitResult.Actor->GetName());
+
+			FDamageEvent DamageEvent;
+			HitResult.Actor->TakeDamage(50.0f, DamageEvent, GetController(), this);
+		}
+	}
+
+}
+
+// 데미지 함수
+float APCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+	class AController* EventInstigator, AActor* DamageCauser)
+{
+	float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	ABLOG(Warning, TEXT("Actor : %s took Damage : %f"), *GetName(), FinalDamage);
+
+	if (FinalDamage > 0.0f)
+	{
+		PlayerAnim->SetDeadAnim();
+		SetActorEnableCollision(false);
+	}
+
+	return FinalDamage;
 }
