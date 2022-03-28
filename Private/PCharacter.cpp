@@ -3,6 +3,7 @@
 
 #include "PCharacter.h"
 #include "PAnimInstance.h"
+#include "WWeapon.h"
 #include "DrawDebugHelpers.h"
 
 // Sets default values
@@ -50,17 +51,19 @@ APCharacter::APCharacter()
 	AttackRange = 200.0f;
 	AttackRadius = 50.0f;
 
-	// 무기 장착용 변수 초기화
-	FName WeaponSocket(TEXT("Hand_R_Socket"));
-	if (GetMesh()->DoesSocketExist(WeaponSocket)) // 소켓이 존재하는지 검사한다
-	{
-		Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
-		static ConstructorHelpers::FObjectFinder<USkeletalMesh>Weapon_SK(
-			TEXT("SkeletalMesh'/Game/InfinityBladeWeapons/Weapons/Blade/Swords/Blade_BlackKnight/SK_Blade_BlackKnight.SK_Blade_BlackKnight'")
-		);
-		if (Weapon_SK.Succeeded()) Weapon->SetSkeletalMesh(Weapon_SK.Object);
-		Weapon->SetupAttachment(GetMesh(), WeaponSocket);
-	}
+	//// 무기 장착용 변수 초기화
+	//FName WeaponSocket(TEXT("Hand_R_Socket"));
+	//if (GetMesh()->DoesSocketExist(WeaponSocket)) // 소켓이 존재하는지 검사한다
+	//{
+	//	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
+	//	static ConstructorHelpers::FObjectFinder<USkeletalMesh>Weapon_SK(
+	//		TEXT("SkeletalMesh'/Game/InfinityBladeWeapons/Weapons/Blade/Swords/Blade_BlackKnight/SK_Blade_BlackKnight.SK_Blade_BlackKnight'")
+	//	);
+	//	if (Weapon_SK.Succeeded()) Weapon->SetSkeletalMesh(Weapon_SK.Object);
+	//	Weapon->SetupAttachment(GetMesh(), WeaponSocket);
+	//}
+
+	CurrentWeapon = nullptr;
 
 }
 
@@ -69,6 +72,14 @@ void APCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// 액터를 부착하는 경우 여기에서 해야 한다
+	// 생성자에서 할 경우 크래시 리포트가 나온다.
+	//FName WeaponSocket(TEXT("Hand_R_Socket"));
+	//auto CurWeapon = GetWorld()->SpawnActor<AWWeapon>(FVector::ZeroVector, FRotator::ZeroRotator);
+	//if (nullptr != CurWeapon)
+	//{
+	//	CurWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponSocket);
+	//}
 }
 
 void APCharacter::PostInitializeComponents()
@@ -359,4 +370,22 @@ float APCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& Dam
 	}
 
 	return FinalDamage;
+}
+
+bool APCharacter::CanSetWeapon()
+{
+	ABLOG_S(Warning);
+	return { nullptr == CurrentWeapon };
+}
+void APCharacter::SetWeapon(AWWeapon* NewWeapon)
+{
+	ABCHECK(nullptr != NewWeapon && nullptr == CurrentWeapon);
+	FName WeaponSocket(TEXT("Hand_R_Socket"));
+	if (nullptr != NewWeapon)
+	{
+		ABLOG_S(Warning);
+		NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponSocket);
+		NewWeapon->SetOwner(this);
+		CurrentWeapon = NewWeapon;
+	}
 }

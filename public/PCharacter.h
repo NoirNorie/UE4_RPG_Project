@@ -73,6 +73,12 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Weapon)
 		USkeletalMeshComponent* Weapon;
 
+	bool CanSetWeapon();
+	void SetWeapon(class AWWeapon* NewWeapon); // 무기가 없으면 무기를 장착하고 무기의 액터를 소유자로 변환하는 함수
+
+	UPROPERTY(VisibleAnywhere, Category = Weapon)
+		class AWWeapon* CurrentWeapon;
+
 
 
 private:
