@@ -69,6 +69,10 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAcceses = true))
 		float AttackRadius;
 
+	// 무기 관련 변수들
+	UPROPERTY(VisibleAnywhere, Category = Weapon)
+		USkeletalMeshComponent* Weapon;
+
 
 
 private:

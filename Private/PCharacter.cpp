@@ -50,6 +50,18 @@ APCharacter::APCharacter()
 	AttackRange = 200.0f;
 	AttackRadius = 50.0f;
 
+	// 무기 장착용 변수 초기화
+	FName WeaponSocket(TEXT("Hand_R_Socket"));
+	if (GetMesh()->DoesSocketExist(WeaponSocket)) // 소켓이 존재하는지 검사한다
+	{
+		Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh>Weapon_SK(
+			TEXT("SkeletalMesh'/Game/InfinityBladeWeapons/Weapons/Blade/Swords/Blade_BlackKnight/SK_Blade_BlackKnight.SK_Blade_BlackKnight'")
+		);
+		if (Weapon_SK.Succeeded()) Weapon->SetSkeletalMesh(Weapon_SK.Object);
+		Weapon->SetupAttachment(GetMesh(), WeaponSocket);
+	}
+
 }
 
 // Called when the game starts or when spawned
