@@ -13,9 +13,11 @@ AWItemBox::AWItemBox()
 
 	Trigger = CreateDefaultSubobject<UBoxComponent>(TEXT("TRIGGER"));
 	Box = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BOX"));
+	Effect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("EFFECT"));
 
 	RootComponent = Trigger;
 	Box->SetupAttachment(RootComponent);
+	Effect->SetupAttachment(RootComponent);
 
 	Trigger->SetBoxExtent(FVector(40.0f, 42.0f, 30.0f)); // 박스 콜리전의 Extent = 전체 박스 영역 크기의 절반 값
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>BOX_SM(
@@ -24,6 +26,16 @@ AWItemBox::AWItemBox()
 	if (BOX_SM.Succeeded()) Box->SetStaticMesh(BOX_SM.Object);
 	Box->SetRelativeLocation(FVector(0.0f, -3.5f, -30.0f));
 	// 콜리전 옵션에서 ItemBox 오브젝트 채널, 프리셋을 생성하고 온다.
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem>Particle_FX(
+		TEXT("ParticleSystem'/Game/InfinityBladeGrassLands/Effects/FX_Treasure/Chest/P_TreasureChest_Open_Mesh.P_TreasureChest_Open_Mesh'")
+	);
+	if (Particle_FX.Succeeded())
+	{
+		Effect->SetTemplate(Particle_FX.Object);
+		Effect->bAutoActivate = false;
+	}
+
 
 	Trigger->SetCollisionProfileName(TEXT("ItemBox"));
 	Box->SetCollisionProfileName(TEXT("NoCollision"));
@@ -59,19 +71,36 @@ void AWItemBox::OnCharacterOverlap(UPrimitiveComponent* OverrlappedComp, AActor*
 			{
 				auto NewWeapon = GetWorld()->SpawnActor<AWWeapon>(WeaponItemClass, FVector::ZeroVector, FRotator::ZeroRotator);
 				Chara->SetWeapon(NewWeapon);
+
+				Effect->Activate(true);
+				Box->SetHiddenInGame(true, true);
+				/*
+					SetHidenInGamae(bool, bool): 액터 컴포넌트에서 시각적인 기능을 끄는 함수
+					- HiddenInGame 옵션은 에디터 레벨 작업 시에는 보임
+					- 게임 플레이 중에는 사라짐
+					
+					비슷한 함수로 SetVisibility() 함수가 있는데 이는 컴포넌트의 시각 기능을 완전히 없애는 함수
+					- Visibility 옵션이 꺼진 함수는 에디터 화면, 플레이어 화면에서 모두 사라짐
+				*/
+
+				SetActorEnableCollision(false);
+				Effect->OnSystemFinished.AddDynamic(this, &AWItemBox::OnEffectFinished);
+
 			}
 			else
 			{
 				ABLOG(Warning, TEXT("%s can't equip weapon currently"), *Chara->GetName());
 			}
 		}
-		//else
-		//{
-		//	ABLOG(Warning, TEXT("%s can't equip weapon currently"), "Null");
-		//}
-
 	}
 }
+
+void AWItemBox::OnEffectFinished(UParticleSystemComponent* PSystem)
+{
+	Destroy(); // 파티클 재생이 끝나면 삭제되도록 만듦
+}
+
+
 
 
 
