@@ -79,6 +79,10 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Weapon)
 		class AWWeapon* CurrentWeapon;
 
+	// 스텟을 읽어올 컴포넌트
+	UPROPERTY(VisibleAnywhere, Category = Stat)
+		class UPCharacterStatComponent* CharacterStat;
+
 
 
 private:

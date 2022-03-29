@@ -4,6 +4,7 @@
 #include "PCharacter.h"
 #include "PAnimInstance.h"
 #include "WWeapon.h"
+#include "PCharacterStatComponent.h"
 #include "DrawDebugHelpers.h"
 
 // Sets default values
@@ -64,6 +65,9 @@ APCharacter::APCharacter()
 	//}
 
 	CurrentWeapon = nullptr;
+
+	// 캐릭터 스텟
+	CharacterStat = CreateDefaultSubobject<UPCharacterStatComponent>(TEXT("CharacterStat"));
 
 }
 
