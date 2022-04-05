@@ -8,6 +8,7 @@
 #include "DrawDebugHelpers.h"
 #include "Components/WidgetComponent.h"
 #include "PCharacterWidget.h"
+#include "NAIController.h"
 
 // Sets default values
 APCharacter::APCharacter()
@@ -90,6 +91,10 @@ APCharacter::APCharacter()
 		HPBarWidget->SetWidgetClass(UI_HUD.Class);
 		HPBarWidget->SetDrawSize(FVector2D(150.0f, 50.0f));
 	}
+
+	AIControllerClass = ANAIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	// EAutoPossessAI::PlacedInWorldOrSpawned: 이 클래스를 사용하는 캐릭터 중 플레이어가 컨트롤 하는 것을 제외한다면 스스로 움직이게 된다.
 
 }
 
