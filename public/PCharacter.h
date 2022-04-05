@@ -31,7 +31,8 @@ protected:
 	enum class EControlMode
 	{
 		GTA,
-		DIABLO
+		DIABLO,
+		NPC
 	};
 
 
@@ -56,6 +57,9 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
 		class AController* EventInstigator, AActor* DamageCauser) override;
+	// 컨트롤러가 누구인지 알아낼 함수
+	virtual void PossessedBy(AController* NewController) override;
+
 
 	// 카메라
 	UPROPERTY(VisibleAnywhere, category = Camera)
@@ -86,7 +90,6 @@ public:
 	// 체력바를 표시할 컴포넌트
 	UPROPERTY(VisibleAnywhere, Category = UI)
 		class UWidgetComponent* HPBarWidget;
-
 
 private:
 	// 카메라 상하좌우 조작

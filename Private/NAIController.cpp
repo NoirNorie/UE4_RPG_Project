@@ -10,6 +10,7 @@
 
 const FName ANAIController::HomePosKey(TEXT("HomePos"));
 const FName ANAIController::PatrolPosKey(TEXT("PatrolPos"));
+const FName ANAIController::TargetKey(TEXT("Target"));
 
 ANAIController::ANAIController()
 {
