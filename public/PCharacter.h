@@ -83,6 +83,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Stat)
 		class UPCharacterStatComponent* CharacterStat;
 
+	// 체력바를 표시할 컴포넌트
+	UPROPERTY(VisibleAnywhere, Category = UI)
+		class UWidgetComponent* HPBarWidget;
 
 
 private:

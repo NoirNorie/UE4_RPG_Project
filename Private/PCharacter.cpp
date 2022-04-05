@@ -6,6 +6,8 @@
 #include "WWeapon.h"
 #include "PCharacterStatComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Components/WidgetComponent.h"
+#include "PCharacterWidget.h"
 
 // Sets default values
 APCharacter::APCharacter()
@@ -68,6 +70,26 @@ APCharacter::APCharacter()
 
 	// 캐릭터 스텟
 	CharacterStat = CreateDefaultSubobject<UPCharacterStatComponent>(TEXT("CharacterStat"));
+	
+	// 캐릭터 체력바 위젯
+	/*
+		캐릭터의 위젯과 스텟 컴포넌트의 상호작용을 위해 델리게이트를 사용함
+		- 상호 의존성을 가지지 않게 만들기 위해서 델리게이트를 사용하는 것
+	*/
+
+
+	HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarWidget"));
+	HPBarWidget->SetupAttachment(GetMesh());
+
+	HPBarWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
+	HPBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
+
+	static ConstructorHelpers::FClassFinder<UUserWidget>UI_HUD(TEXT("/Game/BPS/Widgets/UI_HPBar.UI_HPBar_C"));
+	if (UI_HUD.Succeeded())
+	{
+		HPBarWidget->SetWidgetClass(UI_HUD.Class);
+		HPBarWidget->SetDrawSize(FVector2D(150.0f, 50.0f));
+	}
 
 }
 
@@ -84,6 +106,10 @@ void APCharacter::BeginPlay()
 	//{
 	//	CurWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponSocket);
 	//}
+
+	auto CharacterWidget = Cast<UPCharacterWidget>(HPBarWidget->GetUserWidgetObject());
+	if (CharacterWidget != nullptr)	CharacterWidget->BindCharacterStat(CharacterStat);
+
 }
 
 void APCharacter::PostInitializeComponents()
@@ -109,6 +135,19 @@ void APCharacter::PostInitializeComponents()
 
 	PlayerAnim->OnAttackHitCheck.AddUObject(this, &APCharacter::AttackCheck);
 	// 공격 판정을 위해 애니메이션에 전달해준다.
+
+
+	CharacterStat->OnHPIsZero.AddLambda([this]()->void {
+		ABLOG(Warning, TEXT("OnHPIsZero"));
+		PlayerAnim->SetDeadAnim();
+		SetActorEnableCollision(false);
+	}); // 데미지 처리 중 체력이 0 이하로 떨어지면 람다식으로 액터의 콜리전을 제거해준다.
+
+	//// 4.21버전 이후로 이 구분이 BeginPlay() 함수로 이동해야 정상적으로 동작함
+	//auto CharacterWidget = Cast<UPCharacterWidget>(HPBarWidget->GetUserWidgetObject());
+	//if (CharacterWidget != nullptr) CharacterWidget->BindCharacterStat(CharacterStat);
+
+
 }
 
 // Called every frame
@@ -354,7 +393,8 @@ void APCharacter::AttackCheck()
 			ABLOG(Warning, TEXT("Hit Actor Name : %s"), *HitResult.Actor->GetName());
 
 			FDamageEvent DamageEvent;
-			HitResult.Actor->TakeDamage(50.0f, DamageEvent, GetController(), this);
+			//HitResult.Actor->TakeDamage(50.0f, DamageEvent, GetController(), this);
+			HitResult.Actor->TakeDamage(CharacterStat->GetAttack(), DamageEvent, GetController(), this);
 		}
 	}
 
@@ -367,11 +407,13 @@ float APCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& Dam
 	float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	ABLOG(Warning, TEXT("Actor : %s took Damage : %f"), *GetName(), FinalDamage);
 
-	if (FinalDamage > 0.0f)
-	{
-		PlayerAnim->SetDeadAnim();
-		SetActorEnableCollision(false);
-	}
+	//if (FinalDamage > 0.0f)
+	//{
+	//	PlayerAnim->SetDeadAnim();
+	//	SetActorEnableCollision(false);
+	//}
+
+	CharacterStat->SetDamage(FinalDamage); // 데미지를 전달한다.
 
 	return FinalDamage;
 }

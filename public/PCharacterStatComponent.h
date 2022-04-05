@@ -8,6 +8,9 @@
 #include "PCharacterStatComponent.generated.h"
 
 
+DECLARE_MULTICAST_DELEGATE(FOnHPIsZeroDelegate);  // HP가 0이 된 경우 사망 처리를 위해 사용할 델리게이트
+DECLARE_MULTICAST_DELEGATE(FOnHPChangedDelegate); // HP변화에 사용할 델리게이트
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UPGRADE_API UPCharacterStatComponent : public UActorComponent
 {
@@ -24,7 +27,13 @@ protected:
 
 public:	
 	void SetNewLevel(int32 NewLevel);
+	void SetDamage(float NewDamage);
+	void SetHP(float NewHP);
+	float GetAttack();
+	float GetHPRatio();
 
+	FOnHPIsZeroDelegate OnHPIsZero;
+	FOnHPChangedDelegate OnHPChanged;
 
 private:
 
