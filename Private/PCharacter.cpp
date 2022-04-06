@@ -27,16 +27,41 @@ APCharacter::APCharacter()
 	SpringArm->SetRelativeRotation(FRotator(-15.0f, 0.0f, 0.0f));
 
 	// 캐릭터의 스켈레탈 메시를 가져옴
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/Import/GKnight/Meshes/SK_GothicKnight_VA.SK_GothicKnight_VA'"));
-	if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
-	
+	//static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/Import/GKnight/Meshes/SK_GothicKnight_VA.SK_GothicKnight_VA'"));
+	//if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
+
+	CharaClass = 1;
+	if (CharaClass == 1) // 나이트
+	{
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/Knight/Knight.Knight'"));
+		if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
+		static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Knight/KnightAnim.KnightAnim_C"));
+		if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
+	}
+	else if (CharaClass == 2) // 팔라딘
+	{
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/Hammer/Hammer.Hammer'"));
+		if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
+		static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Hammer/HammerAnim.HammerAnim_C"));
+		if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
+	}
+	else // 두손검
+	{
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/2Hand/2Handed.2Handed'"));
+		if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
+		static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/2Hand/2HandAnim.2HandAnim_C"));
+		if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
+	}
+
+
 	// 사용할 애니메이션의 모드를 지정한다
 	// 블루프린트로 만든 것을 쓸 거라고 하는 것
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	
 	// 캐릭터에 사용할 애니메이션을 가져오고 지정함
-	static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Animations/PlayerAnimation.PlayerAnimation_C"));
-	if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
+	//static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Animations/PlayerAnimation.PlayerAnimation_C"));
+	//if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
+
 
 	SetControlMode(EControlMode::DIABLO);
 	// 화면 전환시 조작 속도와 회전 속도

@@ -9,9 +9,24 @@ UPAnimInstance::UPAnimInstance()
 	IsInAir = false;
 	IsDead = false;
 
+	//static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage(
+	//	TEXT("AnimMontage'/Game/PlayerCharacter/Animations/SwordAttackMontage.SwordAttackMontage'"));
+	//if (Attack_Montage.Succeeded()) AttackMontage = Attack_Montage.Object;
+
+	// 일단 나이트만
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage(
-		TEXT("AnimMontage'/Game/PlayerCharacter/Animations/SwordAttackMontage.SwordAttackMontage'"));
+		TEXT("AnimMontage'/Game/PlayerCharacter/Knight/KnightATKMont.KnightATKMont'"));
 	if (Attack_Montage.Succeeded()) AttackMontage = Attack_Montage.Object;
+
+	//// 팔라딘
+	//static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage(
+	//	TEXT("AnimMontage'/Game/PlayerCharacter/Hammer/HammerATKMont.HammerATKMont'"));
+	//if (Attack_Montage.Succeeded()) AttackMontage = Attack_Montage.Object;
+
+	//// 두손검
+	//static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage(
+	//	TEXT("AnimMontage'/Game/PlayerCharacter/2Hand/2HandATKMont.2HandATKMont'"));
+	//if (Attack_Montage.Succeeded()) AttackMontage = Attack_Montage.Object;
 
 }
 

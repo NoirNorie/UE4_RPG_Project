@@ -91,6 +91,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = UI)
 		class UWidgetComponent* HPBarWidget;
 
+	UPROPERTY(VisibleAnywhere, Category = CharacterClass)
+		int32 CharaClass;
+
 private:
 	// 카메라 상하좌우 조작
 	void UpDown(float NewAxisValue);
@@ -125,8 +128,6 @@ private:
 		int32 CurrentCombo;
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		int32 MaxCombo;
-
-
 
 
 };
