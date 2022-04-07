@@ -14,6 +14,9 @@
 
 #include "PCharacter.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnAttackEndDelegate);
+//AI에게 공격명령을 내리고 공격이 종료되면 공격 태스크에서 알림을 받을 수 있도록 하는 델리게이트
+
 UCLASS()
 class UPGRADE_API APCharacter : public ACharacter
 {
@@ -94,6 +97,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = CharacterClass)
 		int32 CharaClass;
 
+	void Attack();
+	FOnAttackEndDelegate OnAttackEnd;
+
 private:
 	// 카메라 상하좌우 조작
 	void UpDown(float NewAxisValue);
@@ -104,7 +110,7 @@ private:
 	// 액션 바인드
 	void ViewChange();
 	// void Jump(); // 점프 함수는 캐릭터 클래스에 이미 존재한다.
-	void Attack();
+
 
 
 	UPROPERTY()

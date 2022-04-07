@@ -376,6 +376,9 @@ void APCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	ABCHECK(CurrentCombo > 0);
 	IsAttacking = false;
 	AttackEndComboState();
+
+	OnAttackEnd.Broadcast();
+	// 공격이 종료됨을 델리게이트로 알린다
 }
 
 void APCharacter::AttackStartComboState()
