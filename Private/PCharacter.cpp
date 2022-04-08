@@ -9,6 +9,8 @@
 #include "Components/WidgetComponent.h"
 #include "PCharacterWidget.h"
 #include "NAIController.h"
+#include "PCharacterSetting.h"
+#include "PGameInstance.h"
 
 // Sets default values
 APCharacter::APCharacter()
@@ -120,6 +122,15 @@ APCharacter::APCharacter()
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	// EAutoPossessAI::PlacedInWorldOrSpawned: 이 클래스를 사용하는 캐릭터 중 플레이어가 컨트롤 하는 것을 제외한다면 스스로 움직이게 된다.
 
+	//// 로그 출력 테스트
+	//auto DefaultSetting = GetDefault<UPCharacterSetting>();
+	//if (DefaultSetting->CharacterAssets.Num() > 0)
+	//{
+	//	for (auto CharacterAsset : DefaultSetting->CharacterAssets)
+	//	{
+	//		ABLOG(Warning, TEXT("Character Asset : %s"), *CharacterAsset.ToString());
+	//	}
+	//}
 }
 
 // Called when the game starts or when spawned
@@ -139,6 +150,17 @@ void APCharacter::BeginPlay()
 	auto CharacterWidget = Cast<UPCharacterWidget>(HPBarWidget->GetUserWidgetObject());
 	if (CharacterWidget != nullptr)	CharacterWidget->BindCharacterStat(CharacterStat);
 
+	if (!IsPlayerControlled())
+	{
+		auto DefaultSetting = GetDefault<UPCharacterSetting>();
+		int32 RandIndex = FMath::RandRange(0, DefaultSetting->CharacterAssets.Num() - 1);
+		CharacterAssetToLoad = DefaultSetting->CharacterAssets[RandIndex];
+		auto APGameInstance = Cast<UPGameInstance>(GetGameInstance());
+		if (APGameInstance != nullptr)
+		{
+			AssetStreamingHandle = APGameInstance->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad, FStreamableDelegate::CreateUObject(this, &APCharacter::OnAssetLoadCompleted));
+		}
+	}
 }
 
 void APCharacter::PostInitializeComponents()
@@ -486,5 +508,15 @@ void APCharacter::PossessedBy(AController* NewController)
 	{
 		SetControlMode(EControlMode::NPC);
 		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	}
+}
+
+void APCharacter::OnAssetLoadCompleted()
+{
+	USkeletalMesh* AssetLoaded = Cast<USkeletalMesh>(AssetStreamingHandle->GetLoadedAsset());
+	AssetStreamingHandle.Reset();
+	if (AssetLoaded != nullptr)
+	{
+		GetMesh()->SetSkeletalMesh(AssetLoaded);
 	}
 }

@@ -6,6 +6,7 @@
 #include "Upgrade.h"
 #include "Engine/GameInstance.h"
 #include "Engine/DataTable.h"
+#include "Engine/StreamableManager.h"
 #include "PGameInstance.generated.h"
 
 USTRUCT(BlueprintType)
@@ -48,6 +49,13 @@ public:
 	virtual void Init() override;
 
 	FPCharacterData* GetPCharacterData(int32 Level);
+
+	FStreamableManager StreamableManager;
+	/*
+		게임 진행 중에도 비동기 방식으로 애셋을 로딩할 수 있게 하는 클래스
+		- 프로젝트에서는 1개만 존재하도록 하는 것이 권장된다.
+		- 그래 게임 내에 하나만 존재하는 게임 인스턴스 클래스에서 사용
+	*/
 
 private:
 	UPROPERTY()

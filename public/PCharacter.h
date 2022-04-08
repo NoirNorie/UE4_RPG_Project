@@ -111,6 +111,8 @@ private:
 	void ViewChange();
 	// void Jump(); // 점프 함수는 캐릭터 클래스에 이미 존재한다.
 
+	// 비동기 로딩을 수행할 함수
+	void OnAssetLoadCompleted();
 
 
 	UPROPERTY()
@@ -134,6 +136,9 @@ private:
 		int32 CurrentCombo;
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		int32 MaxCombo;
+
+	FSoftObjectPath CharacterAssetToLoad = FSoftObjectPath(nullptr);
+	TSharedPtr<struct FStreamableHandle> AssetStreamingHandle;
 
 
 };
