@@ -97,8 +97,14 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = CharacterClass)
 		int32 CharaClass;
 
+	// 공격 함수
 	void Attack();
 	FOnAttackEndDelegate OnAttackEnd;
+
+	// 캐릭터 상태를 가져오거나 설정하는 함수
+	void SetCharacterState(ECharacterState NewState);
+	ECharacterState GetCharacterState() const;
+
 
 private:
 	// 카메라 상하좌우 조작
@@ -140,7 +146,22 @@ private:
 	FSoftObjectPath CharacterAssetToLoad = FSoftObjectPath(nullptr);
 	TSharedPtr<struct FStreamableHandle> AssetStreamingHandle;
 
+	int32 AssetIndex = 0;
+	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
+		ECharacterState CurrentState;
+	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
+		bool bIsPlayer;
 
+	UPROPERTY()
+		class ANAIController* AIController;
+	UPROPERTY()
+		class APPlayerController* PController;
+	/*
+		현재 상황에서는 멀티가 아닌 싱글 플레이 상태로 구현하였고 캐릭터 클래스를 플레이어와 NPC가 공유중
+		- AI인지 플레이어인지를 구분할 수 있어야 한다
+		- 이를 구분할 수 있는 확실한 시점 중 하나가 BeginPlay() 함수 내부
+		- 플레이어가 캐릭터를 조종하는 경우를 AssetIndex = 4로 임시로 구분함
+	*/
 };
 
 

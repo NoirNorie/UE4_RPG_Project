@@ -11,6 +11,7 @@
 #include "NAIController.h"
 #include "PCharacterSetting.h"
 #include "PGameInstance.h"
+#include "PPlayerController.h"
 
 // Sets default values
 APCharacter::APCharacter()
@@ -131,6 +132,13 @@ APCharacter::APCharacter()
 	//		ABLOG(Warning, TEXT("Character Asset : %s"), *CharacterAsset.ToString());
 	//	}
 	//}
+
+	AssetIndex = 4;
+	SetActorHiddenInGame(true);
+	HPBarWidget->SetHiddenInGame(true);
+	// bCanBeDamaged = false; // 책이 나올 당시에는 이렇게 접근이 가능했음
+	SetCanBeDamaged(false); // 현재는 이렇게 Setter 함수 개념으로 접근해야 함
+
 }
 
 // Called when the game starts or when spawned
@@ -150,18 +158,85 @@ void APCharacter::BeginPlay()
 	auto CharacterWidget = Cast<UPCharacterWidget>(HPBarWidget->GetUserWidgetObject());
 	if (CharacterWidget != nullptr)	CharacterWidget->BindCharacterStat(CharacterStat);
 
-	if (!IsPlayerControlled())
+	//if (!IsPlayerControlled())
+	//{
+	//	auto DefaultSetting = GetDefault<UPCharacterSetting>();
+	//	int32 RandIndex = FMath::RandRange(0, DefaultSetting->CharacterAssets.Num() - 1);
+	//	CharacterAssetToLoad = DefaultSetting->CharacterAssets[RandIndex];
+	//	auto APGameInstance = Cast<UPGameInstance>(GetGameInstance());
+	//	if (APGameInstance != nullptr)
+	//	{
+	//		AssetStreamingHandle = APGameInstance->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad, FStreamableDelegate::CreateUObject(this, &APCharacter::OnAssetLoadCompleted));
+	//	}
+	//}
+	bIsPlayer = IsPlayerControlled();
+	if (bIsPlayer) // 플레이어가 컨트롤하고 있는 캐릭터의 경우
 	{
-		auto DefaultSetting = GetDefault<UPCharacterSetting>();
-		int32 RandIndex = FMath::RandRange(0, DefaultSetting->CharacterAssets.Num() - 1);
-		CharacterAssetToLoad = DefaultSetting->CharacterAssets[RandIndex];
-		auto APGameInstance = Cast<UPGameInstance>(GetGameInstance());
-		if (APGameInstance != nullptr)
-		{
-			AssetStreamingHandle = APGameInstance->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad, FStreamableDelegate::CreateUObject(this, &APCharacter::OnAssetLoadCompleted));
-		}
+		PController = Cast<APPlayerController>(GetController()); // 플레이어 컨트롤러
+		ABCHECK(PController != nullptr);
+	}
+	else // AI가 컨트롤하고 있는 경우
+	{
+		AIController = Cast<ANAIController>(GetController()); // AI 컨트롤러
+		ABCHECK(AIController != nullptr);
+	}
+
+	auto DefaultSetting = GetDefault<UPCharacterSetting>(); // 캐릭터 세팅 클래스에서 애셋을 가져온다
+	if (bIsPlayer) AssetIndex = 4; // 플레이어의 인덱스는 4
+	else AssetIndex = FMath::RandRange(0, DefaultSetting->CharacterAssets.Num() - 1);
+
+	CharacterAssetToLoad = DefaultSetting->CharacterAssets[AssetIndex];
+	auto PGameInst = Cast<UPGameInstance>(GetGameInstance());
+	AssetStreamingHandle = PGameInst->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad,
+		FStreamableDelegate::CreateUObject(this, &APCharacter::OnAssetLoadCompleted));
+	SetCharacterState(ECharacterState::LOADING);
+
+}
+
+void APCharacter::SetCharacterState(ECharacterState NewState)
+{
+	ABCHECK(CurrentState != NewState);
+	CurrentState = NewState;
+
+	switch (CurrentState)
+	{
+	case ECharacterState::LOADING:
+	{
+		SetActorHiddenInGame(true);
+		HPBarWidget->SetHiddenInGame(true);
+		SetCanBeDamaged(false);
+		break;
+	}
+	case ECharacterState::READY:
+	{
+		SetActorHiddenInGame(false);
+		HPBarWidget->SetHiddenInGame(false);
+		SetCanBeDamaged(true);
+		CharacterStat->OnHPIsZero.AddLambda([this]()->void {
+			SetCharacterState(ECharacterState::DEAD);
+			}); // 캐릭터의 체력이 0이 된다면 DEAD 스테이트로 변경하는 람다식
+
+		auto CharaWidget = Cast<UPCharacterWidget>(HPBarWidget->GetUserWidgetObject());
+		ABCHECK(CharaWidget != nullptr);
+		CharaWidget->BindCharacterStat(CharacterStat);
+		break;
+	}
+	case ECharacterState::DEAD:
+	{
+		SetActorEnableCollision(false);
+		GetMesh()->SetHiddenInGame(false);
+		HPBarWidget->SetHiddenInGame(true);
+		PlayerAnim->SetDeadAnim();
+		SetCanBeDamaged(false);
+		break;
+	}
 	}
 }
+ECharacterState APCharacter::GetCharacterState() const
+{
+	return CurrentState;
+}
+
 
 void APCharacter::PostInitializeComponents()
 {
@@ -188,11 +263,13 @@ void APCharacter::PostInitializeComponents()
 	// 공격 판정을 위해 애니메이션에 전달해준다.
 
 
-	CharacterStat->OnHPIsZero.AddLambda([this]()->void {
-		ABLOG(Warning, TEXT("OnHPIsZero"));
-		PlayerAnim->SetDeadAnim();
-		SetActorEnableCollision(false);
-	}); // 데미지 처리 중 체력이 0 이하로 떨어지면 람다식으로 액터의 콜리전을 제거해준다.
+	//CharacterStat->OnHPIsZero.AddLambda([this]()->void {
+	//	ABLOG(Warning, TEXT("OnHPIsZero"));
+	//	PlayerAnim->SetDeadAnim();
+	//	SetActorEnableCollision(false);
+	//}); // 데미지 처리 중 체력이 0 이하로 떨어지면 람다식으로 액터의 콜리전을 제거해준다.
+	// 캐릭터 스테이트에서 동일한 람다식을 정의하였음
+	// 더 이상 필요 없는 구문
 
 	//// 4.21버전 이후로 이 구분이 BeginPlay() 함수로 이동해야 정상적으로 동작함
 	//auto CharacterWidget = Cast<UPCharacterWidget>(HPBarWidget->GetUserWidgetObject());
@@ -515,8 +592,8 @@ void APCharacter::OnAssetLoadCompleted()
 {
 	USkeletalMesh* AssetLoaded = Cast<USkeletalMesh>(AssetStreamingHandle->GetLoadedAsset());
 	AssetStreamingHandle.Reset();
-	if (AssetLoaded != nullptr)
-	{
-		GetMesh()->SetSkeletalMesh(AssetLoaded);
-	}
+	ABCHECK(AssetLoaded != nullptr);
+	GetMesh()->SetSkeletalMesh(AssetLoaded);
+
+	SetCharacterState(ECharacterState::READY);
 }
