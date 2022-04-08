@@ -162,6 +162,10 @@ private:
 		- 이를 구분할 수 있는 확실한 시점 중 하나가 BeginPlay() 함수 내부
 		- 플레이어가 캐릭터를 조종하는 경우를 AssetIndex = 4로 임시로 구분함
 	*/
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = State, Meta = (AllowPrivateAccess = true))
+		float DeadTimer;
+	FTimerHandle DeadTimerHandle = {  };
 };
 
 

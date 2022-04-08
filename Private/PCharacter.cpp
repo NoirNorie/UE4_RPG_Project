@@ -139,6 +139,8 @@ APCharacter::APCharacter()
 	// bCanBeDamaged = false; // 책이 나올 당시에는 이렇게 접근이 가능했음
 	SetCanBeDamaged(false); // 현재는 이렇게 Setter 함수 개념으로 접근해야 함
 
+	DeadTimer = 5.0f;
+
 }
 
 // Called when the game starts or when spawned
@@ -202,6 +204,9 @@ void APCharacter::SetCharacterState(ECharacterState NewState)
 	{
 	case ECharacterState::LOADING:
 	{
+
+		if (bIsPlayer) DisableInput(PController);
+
 		SetActorHiddenInGame(true);
 		HPBarWidget->SetHiddenInGame(true);
 		SetCanBeDamaged(false);
@@ -219,6 +224,22 @@ void APCharacter::SetCharacterState(ECharacterState NewState)
 		auto CharaWidget = Cast<UPCharacterWidget>(HPBarWidget->GetUserWidgetObject());
 		ABCHECK(CharaWidget != nullptr);
 		CharaWidget->BindCharacterStat(CharacterStat);
+
+		// 플레이어, AI에 따라서 다음이 정해진다.
+		if (bIsPlayer)
+		{
+			SetControlMode(EControlMode::DIABLO);
+			GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+			EnableInput(PController);
+		}
+		else
+		{
+			SetControlMode(EControlMode::NPC);
+			GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+			AIController->RunAI(); // 비헤이비어 트리를 동작시킨다.
+		}
+
+
 		break;
 	}
 	case ECharacterState::DEAD:
@@ -228,6 +249,22 @@ void APCharacter::SetCharacterState(ECharacterState NewState)
 		HPBarWidget->SetHiddenInGame(true);
 		PlayerAnim->SetDeadAnim();
 		SetCanBeDamaged(false);
+
+		if (bIsPlayer)
+		{
+			DisableInput(PController);
+		}
+		else
+		{
+			AIController->StopAI();
+		}
+
+		GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda(
+			[this]()->void {
+				if (bIsPlayer) PController->RestartLevel();
+				else Destroy();
+			}), DeadTimer, false);
+
 		break;
 	}
 	}

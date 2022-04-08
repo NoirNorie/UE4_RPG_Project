@@ -26,14 +26,14 @@ ANAIController::ANAIController()
 void ANAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-	if (UseBlackboard(BBAsset, Blackboard))
-	{
-		Blackboard->SetValueAsVector(HomePosKey, InPawn->GetActorLocation());
-		if (!RunBehaviorTree(BTAsset))
-		{
-			ABLOG(Error, TEXT("AIController couldn't run BT"));
-		}
-	}
+	//if (UseBlackboard(BBAsset, Blackboard))
+	//{
+	//	Blackboard->SetValueAsVector(HomePosKey, InPawn->GetActorLocation());
+	//	if (!RunBehaviorTree(BTAsset))
+	//	{
+	//		ABLOG(Error, TEXT("AIController couldn't run BT"));
+	//	}
+	//}
 	//GetWorld()->GetTimerManager().SetTimer(RepeatTimerHandle, this, &ANAIController::OnRepeatTimer, RepeatInterval, true);
 }
 
@@ -43,7 +43,23 @@ void ANAIController::OnUnPossess()
 	//GetWorld()->GetTimerManager().ClearTimer(RepeatTimerHandle);
 }
 
+void ANAIController::RunAI()
+{
+	if (UseBlackboard(BBAsset, Blackboard))
+	{
+		Blackboard->SetValueAsVector(HomePosKey, GetPawn()->GetActorLocation());
+		if (!RunBehaviorTree(BTAsset))
+		{
+			ABLOG(Error, TEXT("AIController could't run Behavior Tree!"));
+		}
+	}
+}
 
+void ANAIController::StopAI()
+{
+	auto BTComp = Cast<UBehaviorTreeComponent>(BrainComponent);
+	if (BTComp != nullptr) BTComp->StopTree(EBTStopMode::Safe);
+}
 
 
 

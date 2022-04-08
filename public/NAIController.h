@@ -26,6 +26,10 @@ public:
 	static const FName PatrolPosKey;
 	static const FName TargetKey;
 
+	// 비헤이비어 트리를 수동으로 키고 끌 수 있도록 하는 함수
+	void RunAI();
+	void StopAI();
+
 private:
 	//void OnRepeatTimer();
 
