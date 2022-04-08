@@ -12,3 +12,7 @@
 
 
 ------------------
+
+### 구분
+- public, private: 게임 소스 폴더
+- UpgradeSetting: 세팅 폴더
