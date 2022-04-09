@@ -8,6 +8,8 @@
 #include "PCharacter.h"
 // 플레이어 컨트롤러 헤더
 #include "PPlayerController.h"
+// 플레이어 정보 헤더
+#include "PPlayerState.h"
 
 ASGameMode::ASGameMode()
 {
@@ -16,11 +18,17 @@ ASGameMode::ASGameMode()
 	DefaultPawnClass = APCharacter::StaticClass();
 	// 기본 컨트롤러 지정
 	PlayerControllerClass = APPlayerController::StaticClass();
+	// 정보를 얻어올 클래스 지정
+	PlayerStateClass = APPlayerState::StaticClass();
 }
 
 void ASGameMode::PostLogin(APlayerController* NewPlayer)
 {
-	ABLOG(Warning, TEXT("PostLogin Begin"));
+	// ABLOG(Warning, TEXT("PostLogin Begin"));
 	Super::PostLogin(NewPlayer);
-	ABLOG(Warning, TEXT("PostLogin End"));
+	// ABLOG(Warning, TEXT("PostLogin End"));
+
+	auto PState = Cast<APPlayerState>(NewPlayer->PlayerState);
+	ABCHECK(PState != nullptr);
+	PState->InitPlayerData();
 }

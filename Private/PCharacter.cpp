@@ -12,6 +12,7 @@
 #include "PCharacterSetting.h"
 #include "PGameInstance.h"
 #include "PPlayerController.h"
+#include "PPlayerState.h"
 
 // Sets default values
 APCharacter::APCharacter()
@@ -133,7 +134,7 @@ APCharacter::APCharacter()
 	//	}
 	//}
 
-	AssetIndex = 4;
+	AssetIndex = 2;
 	SetActorHiddenInGame(true);
 	HPBarWidget->SetHiddenInGame(true);
 	// bCanBeDamaged = false; // 책이 나올 당시에는 이렇게 접근이 가능했음
@@ -184,7 +185,7 @@ void APCharacter::BeginPlay()
 	}
 
 	auto DefaultSetting = GetDefault<UPCharacterSetting>(); // 캐릭터 세팅 클래스에서 애셋을 가져온다
-	if (bIsPlayer) AssetIndex = 4; // 플레이어의 인덱스는 4
+	if (bIsPlayer) AssetIndex = 2;
 	else AssetIndex = FMath::RandRange(0, DefaultSetting->CharacterAssets.Num() - 1);
 
 	CharacterAssetToLoad = DefaultSetting->CharacterAssets[AssetIndex];
@@ -205,8 +206,14 @@ void APCharacter::SetCharacterState(ECharacterState NewState)
 	case ECharacterState::LOADING:
 	{
 
-		if (bIsPlayer) DisableInput(PController);
+		if (bIsPlayer)
+		{
+			DisableInput(PController);
 
+			auto PState = Cast<APPlayerState>(GetPlayerState());
+			ABCHECK(PState != nullptr);
+			CharacterStat->SetNewLevel(PState->GetCharacterLevel());
+		}
 		SetActorHiddenInGame(true);
 		HPBarWidget->SetHiddenInGame(true);
 		SetCanBeDamaged(false);
