@@ -11,6 +11,9 @@
 	게임의 진행 상황을 기록할 클래스
 */
 
+DECLARE_MULTICAST_DELEGATE(FOnPlayerStateChangedDelegate);
+
+
 /**
  * 
  */
@@ -25,6 +28,8 @@ public:
 	int32 GetCharacterLevel() const; // 플레이어의 레벨을 표시할 함수
 
 	void InitPlayerData();
+
+	FOnPlayerStateChangedDelegate OnPlayerStateChanged;
 
 protected:
 	UPROPERTY(Transient)
