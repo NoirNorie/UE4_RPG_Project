@@ -28,7 +28,7 @@ APCharacter::APCharacter()
 	Camera->SetupAttachment(SpringArm);
 
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -88.0f), FRotator(0.0f, -90.0f, 0.0f));
-	SpringArm->TargetArmLength = 400.0f; // 스프링 암의 길이는 400
+	SpringArm->TargetArmLength = 800.0f; // 스프링 암의 길이는 800
 	SpringArm->SetRelativeRotation(FRotator(-15.0f, 0.0f, 0.0f));
 
 	// 캐릭터의 스켈레탈 메시를 가져옴
@@ -390,7 +390,7 @@ void APCharacter::SetControlMode(EControlMode NewControlMode)
 	case EControlMode::GTA:
 		// SpringArm->TargetArmLength = 450.0f;
 		// SpringArm->SetRelativeRotation(FRotator::ZeroRotator);
-		ArmLengthTo = 450.0f;
+		ArmLengthTo = 800.0f;
 		SpringArm->bUsePawnControlRotation = true;
 		SpringArm->bInheritPitch = true;
 		SpringArm->bInheritRoll = true;

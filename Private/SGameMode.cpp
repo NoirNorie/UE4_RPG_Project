@@ -10,6 +10,8 @@
 #include "PPlayerController.h"
 // 플레이어 정보 헤더
 #include "PPlayerState.h"
+// 게임 상태 헤더
+#include "PGameState.h"
 
 ASGameMode::ASGameMode()
 {
@@ -20,6 +22,8 @@ ASGameMode::ASGameMode()
 	PlayerControllerClass = APPlayerController::StaticClass();
 	// 정보를 얻어올 클래스 지정
 	PlayerStateClass = APPlayerState::StaticClass();
+	// 게임 상태를 얻어올 클래스 지정
+	GameStateClass = APGameState::StaticClass();
 }
 
 void ASGameMode::PostLogin(APlayerController* NewPlayer)

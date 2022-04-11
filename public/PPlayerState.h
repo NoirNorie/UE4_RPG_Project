@@ -32,6 +32,7 @@ public:
 	float GetExpRation() const;
 	bool AddEXP(int32 IncomeEXP);
 
+	FString SaveSlotName; // 세이브 슬롯 이름
 
 	FOnPlayerStateChangedDelegate OnPlayerStateChanged;
 

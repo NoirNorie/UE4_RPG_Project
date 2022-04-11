@@ -3,12 +3,14 @@
 
 #include "PPlayerState.h"
 #include "PGameInstance.h"
+#include "SSaveGame.h"
 
 APPlayerState::APPlayerState()
 {
 	CharacterLevel = 1;
 	GameScore = 0;
 	EXP = 0;
+	SaveSlotName = TEXT("Player1");
 }
 
 int32 APPlayerState::GetGameScore() const		 // 플레이어의 점수를 표시할 함수
@@ -19,12 +21,20 @@ int32 APPlayerState::GetCharacterLevel() const // 플레이어의 레벨을 표�
 {
 	return CharacterLevel;
 }
-void APPlayerState::InitPlayerData()
+void APPlayerState::InitPlayerData() // 플레이어 데이터를 읽어들일 함수
 {
-	SetPlayerName(TEXT("Player"));
-	SetCharacterLevel(5);
+	//SetPlayerName(TEXT("Player"));
+	//SetCharacterLevel(5);
+	//GameScore = 0;
+	//EXP = 0;
+
+	auto PSaveGame = Cast<USSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
+	if (PSaveGame == nullptr) PSaveGame = GetMutableDefault<USSaveGame>(); // 형변환 된 것이 없다면 만들어냄
+
+	SetPlayerName(PSaveGame->PlayerName);
+	SetCharacterLevel(PSaveGame->Level);
 	GameScore = 0;
-	EXP = 0;
+	EXP = PSaveGame->Exp;
 }
 
 float APPlayerState::GetExpRation() const

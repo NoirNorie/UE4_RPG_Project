@@ -3,3 +3,7 @@
 
 #include "PGameState.h"
 
+APGameState::APGameState()
+{
+
+}
