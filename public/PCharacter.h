@@ -105,6 +105,8 @@ public:
 	void SetCharacterState(ECharacterState NewState);
 	ECharacterState GetCharacterState() const;
 
+	// 경험치
+	int32 GetExp() const;
 
 private:
 	// 카메라 상하좌우 조작

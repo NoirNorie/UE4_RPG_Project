@@ -24,19 +24,19 @@ void UPHudWidget::BindPlayerState(APPlayerState* PlayerState)
 void UPHudWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	HPBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("HPBar")));
+	HPBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("pbHP")));
 	ABCHECK(HPBar != nullptr);
 
-	ExpBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("EXPBar")));
+	ExpBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("pbEXP")));
 	ABCHECK(ExpBar != nullptr);
 
-	MPBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("MPBar")));
+	MPBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("pbMP")));
 	ABCHECK(MPBar != nullptr);
 
-	PlayerName = Cast<UTextBlock>(GetWidgetFromName(TEXT("PlayerName")));
+	PlayerName = Cast<UTextBlock>(GetWidgetFromName(TEXT("PlayerCLASS")));
 	ABCHECK(PlayerName != nullptr);
 
-	PlayerLevel = Cast<UTextBlock>(GetWidgetFromName(TEXT("PlayerLevel")));
+	PlayerLevel = Cast<UTextBlock>(GetWidgetFromName(TEXT("PlayerLV")));
 	ABCHECK(PlayerLevel != nullptr);
 }
 
@@ -49,6 +49,8 @@ void UPHudWidget::UpdateCharacterStat()
 void UPHudWidget::UpdatePlayerState()
 {
 	ABCHECK(CurrentPlayerState.IsValid());
+
+	ExpBar->SetPercent(CurrentPlayerState->GetExpRation());
 
 	PlayerName->SetText(FText::FromString(CurrentPlayerState->GetPlayerName()));
 	PlayerLevel->SetText(FText::FromString(FString::FromInt(CurrentPlayerState->GetCharacterLevel())));

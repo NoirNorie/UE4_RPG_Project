@@ -21,6 +21,7 @@ public:
 	virtual void OnPossess(APawn* aPawn) override;
 
 	class UPHudWidget* GetHudWidget() const;
+	void NPCKill(class APCharacter* KilledNPC) const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -31,4 +32,7 @@ protected:
 private:
 	UPROPERTY()
 		class UPHudWidget* HUDWidget;
+
+	UPROPERTY()
+		class APPlayerState* PState;
 };

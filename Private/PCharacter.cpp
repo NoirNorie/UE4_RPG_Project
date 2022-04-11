@@ -13,6 +13,7 @@
 #include "PGameInstance.h"
 #include "PPlayerController.h"
 #include "PPlayerState.h"
+#include "PHudWidget.h"
 
 // Sets default values
 APCharacter::APCharacter()
@@ -35,27 +36,31 @@ APCharacter::APCharacter()
 	//if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
 
 	CharaClass = 1;
-	if (CharaClass == 1) // 나이트
-	{
-		static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/Knight/Knight.Knight'"));
-		if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
-		static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Knight/KnightAnim.KnightAnim_C"));
-		if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
-	}
-	else if (CharaClass == 2) // 팔라딘
-	{
-		static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/Hammer/Hammer.Hammer'"));
-		if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
-		static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Hammer/HammerAnim.HammerAnim_C"));
-		if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
-	}
-	else // 두손검
-	{
-		static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/2Hand/2Handed.2Handed'"));
-		if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
-		static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/2Hand/2HandAnim.2HandAnim_C"));
-		if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
-	}
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/Knight/Knight.Knight'"));
+	if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
+	static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Knight/KnightAnim.KnightAnim_C"));
+	if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
+	//if (CharaClass == 1) // 나이트
+	//{
+	//	static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/Knight/Knight.Knight'"));
+	//	if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
+	//	static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Knight/KnightAnim.KnightAnim_C"));
+	//	if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
+	//}
+	//else if (CharaClass == 2) // 팔라딘
+	//{
+	//	static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/Hammer/Hammer.Hammer'"));
+	//	if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
+	//	static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Hammer/HammerAnim.HammerAnim_C"));
+	//	if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
+	//}
+	//else // 두손검
+	//{
+	//	static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/2Hand/2Handed.2Handed'"));
+	//	if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
+	//	static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/2Hand/2HandAnim.2HandAnim_C"));
+	//	if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
+	//}
 
 
 	// 사용할 애니메이션의 모드를 지정한다
@@ -210,10 +215,13 @@ void APCharacter::SetCharacterState(ECharacterState NewState)
 		{
 			DisableInput(PController);
 
+			PController->GetHudWidget()->BindCharacterStat(CharacterStat);
+
 			auto PState = Cast<APPlayerState>(GetPlayerState());
 			ABCHECK(PState != nullptr);
 			CharacterStat->SetNewLevel(PState->GetCharacterLevel());
 		}
+		PlayerAnim->SetMontageAnim(AssetIndex); // 공격 몽타주를 지정해준다.
 		SetActorHiddenInGame(true);
 		HPBarWidget->SetHiddenInGame(true);
 		SetCanBeDamaged(false);
@@ -236,7 +244,7 @@ void APCharacter::SetCharacterState(ECharacterState NewState)
 		if (bIsPlayer)
 		{
 			SetControlMode(EControlMode::DIABLO);
-			GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+			GetCharacterMovement()->MaxWalkSpeed = 800.0f;
 			EnableInput(PController);
 		}
 		else
@@ -301,7 +309,7 @@ void APCharacter::PostInitializeComponents()
 			AttackStartComboState();
 			PlayerAnim->JumpToAttackMontageSection(CurrentCombo);
 		}
-		});
+	});
 
 	PlayerAnim->OnAttackHitCheck.AddUObject(this, &APCharacter::AttackCheck);
 	// 공격 판정을 위해 애니메이션에 전달해준다.
@@ -501,7 +509,10 @@ void APCharacter::Attack()
 	if (IsAttacking)
 	{
 		ABCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 1, MaxCombo));
-		if (CanNextCombo) IsComboInputOn = true;
+		if (CanNextCombo)
+		{
+			IsComboInputOn = true;
+		}
 	}
 	else
 	{
@@ -596,6 +607,16 @@ float APCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& Dam
 
 	CharacterStat->SetDamage(FinalDamage); // 데미지를 전달한다.
 
+	if (CurrentState == ECharacterState::DEAD)
+	{
+		if (EventInstigator->IsPlayerController())
+		{
+			auto PCont = Cast<APPlayerController>(EventInstigator);
+			ABCHECK(PCont != nullptr, 0.0f);
+			PCont->NPCKill(this);
+		}
+	}
+
 	return FinalDamage;
 }
 
@@ -640,4 +661,9 @@ void APCharacter::OnAssetLoadCompleted()
 	GetMesh()->SetSkeletalMesh(AssetLoaded);
 
 	SetCharacterState(ECharacterState::READY);
+}
+
+int32 APCharacter::GetExp() const
+{
+	return CharacterStat->GetDropExp();
 }

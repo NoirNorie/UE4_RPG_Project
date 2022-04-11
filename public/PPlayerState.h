@@ -29,6 +29,10 @@ public:
 
 	void InitPlayerData();
 
+	float GetExpRation() const;
+	bool AddEXP(int32 IncomeEXP);
+
+
 	FOnPlayerStateChangedDelegate OnPlayerStateChanged;
 
 protected:
@@ -36,4 +40,10 @@ protected:
 		int32 GameScore;
 	UPROPERTY(Transient)
 		int32 CharacterLevel;
+
+	UPROPERTY(Transient)
+		int32 EXP;
+private:
+	void SetCharacterLevel(int32 NewCharacterLevel);
+	struct FPCharacterData* CurrentStatData;
 };

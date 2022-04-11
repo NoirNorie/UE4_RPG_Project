@@ -31,6 +31,7 @@ public:
 	void SetHP(float NewHP);
 	float GetAttack();
 	float GetHPRatio();
+	int32 GetDropExp() const;
 
 	FOnHPIsZeroDelegate OnHPIsZero;
 	FOnHPChangedDelegate OnHPChanged;
@@ -52,15 +53,6 @@ private:
 		- CurrentHP 값은 게임을 시작할 때마다 변경되어 이 값을 보관할 필요가 딱히 없음(오히려 오브젝트 저장시 자원만 소모함)
 		- 직렬화에서 제외시키는 키워드라고 생각하면 된다.
 	*/
-
-
-
-
-
-
-
-
-
 
 	// Called every frame
 	// virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
