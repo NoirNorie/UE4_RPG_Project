@@ -58,8 +58,6 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 		bool IsDead;
 
-	// 애니메이션 몽타주를 저장할 클래스
-	TMap<int, UAnimMontage*> AnimMap;
-
+	TMap<int32, UAnimMontage*> MontMap;
 
 };

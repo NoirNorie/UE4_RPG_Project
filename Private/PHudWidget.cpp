@@ -38,6 +38,9 @@ void UPHudWidget::NativeConstruct()
 
 	PlayerLevel = Cast<UTextBlock>(GetWidgetFromName(TEXT("PlayerLV")));
 	ABCHECK(PlayerLevel != nullptr);
+
+	StageNum = Cast<UTextBlock>(GetWidgetFromName(TEXT("StageNum")));
+	ABCHECK(StageNum != nullptr);
 }
 
 void UPHudWidget::UpdateCharacterStat()
@@ -54,6 +57,6 @@ void UPHudWidget::UpdatePlayerState()
 
 	PlayerName->SetText(FText::FromString(CurrentPlayerState->GetPlayerName()));
 	PlayerLevel->SetText(FText::FromString(FString::FromInt(CurrentPlayerState->GetCharacterLevel())));
-
+	StageNum->SetText(FText::FromString(FString::FromInt(CurrentPlayerState->GetStageNums())));
 
 }

@@ -14,13 +14,14 @@
 #include "PPlayerController.h"
 #include "PPlayerState.h"
 #include "PHudWidget.h"
+#include "SGameMode.h"
 
 // Sets default values
 APCharacter::APCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	// 카메라 연결
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -31,45 +32,30 @@ APCharacter::APCharacter()
 	SpringArm->TargetArmLength = 800.0f; // 스프링 암의 길이는 800
 	SpringArm->SetRelativeRotation(FRotator(-15.0f, 0.0f, 0.0f));
 
-	// 캐릭터의 스켈레탈 메시를 가져옴
-	//static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/Import/GKnight/Meshes/SK_GothicKnight_VA.SK_GothicKnight_VA'"));
-	//if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
-
 	CharaClass = 1;
+
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/Knight/Knight.Knight'"));
 	if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
-	static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Knight/KnightAnim.KnightAnim_C"));
-	if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
-	//if (CharaClass == 1) // 나이트
-	//{
-	//	static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/Knight/Knight.Knight'"));
-	//	if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
-	//	static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Knight/KnightAnim.KnightAnim_C"));
-	//	if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
-	//}
-	//else if (CharaClass == 2) // 팔라딘
-	//{
-	//	static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/Hammer/Hammer.Hammer'"));
-	//	if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
-	//	static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Hammer/HammerAnim.HammerAnim_C"));
-	//	if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
-	//}
-	//else // 두손검
-	//{
-	//	static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/2Hand/2Handed.2Handed'"));
-	//	if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
-	//	static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/2Hand/2HandAnim.2HandAnim_C"));
-	//	if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
-	//}
-
+	static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Knight/KnightAnimation.KnightAnimation_C"));
+	if (Character_Anim.Succeeded())
+	{
+		GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
+		ANImap.Add(2, Character_Anim.Class);
+	}
+	static ConstructorHelpers::FClassFinder<UAnimInstance>AnimLoad1(TEXT("/Game/PlayerCharacter/Hammer/HammerAnimation.HammerAnimation_C"));
+	if (AnimLoad1.Succeeded())
+	{
+		ANImap.Add(0, AnimLoad1.Class);
+	}
+	static ConstructorHelpers::FClassFinder<UAnimInstance>AnimLoad2(TEXT("/Game/PlayerCharacter/2Hand/Hand2Animation.Hand2Animation_C"));
+	if (AnimLoad2.Succeeded())
+	{
+		ANImap.Add(1, AnimLoad2.Class);
+	}
 
 	// 사용할 애니메이션의 모드를 지정한다
 	// 블루프린트로 만든 것을 쓸 거라고 하는 것
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-	
-	// 캐릭터에 사용할 애니메이션을 가져오고 지정함
-	//static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Animations/PlayerAnimation.PlayerAnimation_C"));
-	//if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
 
 
 	SetControlMode(EControlMode::DIABLO);
@@ -166,17 +152,6 @@ void APCharacter::BeginPlay()
 	auto CharacterWidget = Cast<UPCharacterWidget>(HPBarWidget->GetUserWidgetObject());
 	if (CharacterWidget != nullptr)	CharacterWidget->BindCharacterStat(CharacterStat);
 
-	//if (!IsPlayerControlled())
-	//{
-	//	auto DefaultSetting = GetDefault<UPCharacterSetting>();
-	//	int32 RandIndex = FMath::RandRange(0, DefaultSetting->CharacterAssets.Num() - 1);
-	//	CharacterAssetToLoad = DefaultSetting->CharacterAssets[RandIndex];
-	//	auto APGameInstance = Cast<UPGameInstance>(GetGameInstance());
-	//	if (APGameInstance != nullptr)
-	//	{
-	//		AssetStreamingHandle = APGameInstance->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad, FStreamableDelegate::CreateUObject(this, &APCharacter::OnAssetLoadCompleted));
-	//	}
-	//}
 	bIsPlayer = IsPlayerControlled();
 	if (bIsPlayer) // 플레이어가 컨트롤하고 있는 캐릭터의 경우
 	{
@@ -190,13 +165,21 @@ void APCharacter::BeginPlay()
 	}
 
 	auto DefaultSetting = GetDefault<UPCharacterSetting>(); // 캐릭터 세팅 클래스에서 애셋을 가져온다
-	if (bIsPlayer) AssetIndex = 2;
-	else AssetIndex = FMath::RandRange(0, DefaultSetting->CharacterAssets.Num() - 1);
+	if (bIsPlayer)
+	{
+		AssetIndex = 2;
+	}
+	else
+	{
+		AssetIndex = FMath::RandRange(0, DefaultSetting->CharacterAssets.Num() - 1);
+	}
 
+	// 캐릭터의 스켈레탈 메시 애셋과 애니메이션을 가져옴
 	CharacterAssetToLoad = DefaultSetting->CharacterAssets[AssetIndex];
+
 	auto PGameInst = Cast<UPGameInstance>(GetGameInstance());
 	AssetStreamingHandle = PGameInst->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad,
-		FStreamableDelegate::CreateUObject(this, &APCharacter::OnAssetLoadCompleted));
+		FStreamableDelegate::CreateUObject(this, &APCharacter::OnAssetLoadCompleted)); // 캐릭터 애셋을 가져옴
 	SetCharacterState(ECharacterState::LOADING);
 
 }
@@ -220,6 +203,15 @@ void APCharacter::SetCharacterState(ECharacterState NewState)
 			auto PState = Cast<APPlayerState>(GetPlayerState());
 			ABCHECK(PState != nullptr);
 			CharacterStat->SetNewLevel(PState->GetCharacterLevel());
+		}
+		else // 플레이어가 아닐 경우 스테이지 수에 비례하여 더 강력해진다.
+		{
+			auto PGM = Cast<ASGameMode>(GetWorld()->GetAuthGameMode());
+			ABCHECK(PGM != nullptr);
+			int32 TargetLevel = FMath::CeilToInt(((float)PGM->GetStage() * 0.8f));
+			int32 FinalLevel = FMath::Clamp<int32>(TargetLevel, 1, 20);
+			ABLOG(Warning, TEXT("New NPC LEVEL : %d"), FinalLevel);
+			CharacterStat->SetNewLevel(FinalLevel);
 		}
 		PlayerAnim->SetMontageAnim(AssetIndex); // 공격 몽타주를 지정해준다.
 		SetActorHiddenInGame(true);
@@ -479,7 +471,7 @@ void APCharacter::Turn(float NewAxisValue)
 	switch (CurrentControlMode)
 	{
 	case EControlMode::GTA:
-		AddControllerPitchInput(NewAxisValue);
+		AddControllerYawInput(NewAxisValue);
 		break;
 	}
 }
@@ -653,13 +645,21 @@ void APCharacter::PossessedBy(AController* NewController)
 	}
 }
 
+void APCharacter::OnAssetLoadCharacter()
+{
+
+}
+
 void APCharacter::OnAssetLoadCompleted()
 {
 	USkeletalMesh* AssetLoaded = Cast<USkeletalMesh>(AssetStreamingHandle->GetLoadedAsset());
 	AssetStreamingHandle.Reset();
 	ABCHECK(AssetLoaded != nullptr);
-	GetMesh()->SetSkeletalMesh(AssetLoaded);
+	GetMesh()->SetSkeletalMesh(AssetLoaded); // 스켈레탈 메시를 가져옴
+	GetMesh()->SetAnimInstanceClass(ANImap[AssetIndex]); // 애니메이션도 전환시킴
+	PlayerAnim->SetMontageAnim(AssetIndex);				// 공격 몽타주도 그에 맞게 전환
 
+	// 애셋을 가져오고 애니메이션을 가져오는 것 까지 성공했다면 준비 상태로 전환시킨다.
 	SetCharacterState(ECharacterState::READY);
 }
 

@@ -5,5 +5,14 @@
 
 APGameState::APGameState()
 {
+	TotalStageNums = 0;
+}
 
+int32 APGameState::GetTotalStage() const
+{
+	return TotalStageNums;
+}
+void APGameState::AddStageNums()
+{
+	TotalStageNums++;
 }

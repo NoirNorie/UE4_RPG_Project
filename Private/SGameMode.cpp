@@ -36,3 +36,27 @@ void ASGameMode::PostLogin(APlayerController* NewPlayer)
 	ABCHECK(PState != nullptr);
 	PState->InitPlayerData();
 }
+
+void ASGameMode::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	PGameState = Cast<APGameState>(GameState);
+}
+void ASGameMode::AddStageNums(class APPlayerController* StagePlayer)
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
+	{
+		const auto PCont = Cast<APPlayerController>(It->Get());
+		if ((PCont != nullptr) && (PCont == StagePlayer))
+		{
+			PCont->AddStageNums();
+			break;
+		}
+	}
+	PGameState->AddStageNums();
+}
+
+int32 ASGameMode::GetStage() const
+{
+	return PGameState->GetTotalStage();
+}

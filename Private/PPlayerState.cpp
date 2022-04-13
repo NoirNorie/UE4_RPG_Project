@@ -8,18 +8,18 @@
 APPlayerState::APPlayerState()
 {
 	CharacterLevel = 1;
-	GameScore = 0;
+	StageNums = 1;
 	EXP = 0;
 	SaveSlotName = TEXT("Player1");
 }
 
-int32 APPlayerState::GetGameScore() const		 // 플레이어의 점수를 표시할 함수
-{
-	return GameScore;
-}
 int32 APPlayerState::GetCharacterLevel() const // 플레이어의 레벨을 표시할 함수
 {
 	return CharacterLevel;
+}
+int32 APPlayerState::GetStageNums() const
+{
+	return StageNums;
 }
 void APPlayerState::InitPlayerData() // 플레이어 데이터를 읽어들일 함수
 {
@@ -33,8 +33,20 @@ void APPlayerState::InitPlayerData() // 플레이어 데이터를 읽어들일 �
 
 	SetPlayerName(PSaveGame->PlayerName);
 	SetCharacterLevel(PSaveGame->Level);
-	GameScore = 0;
 	EXP = PSaveGame->Exp;
+	SavePlayerData();
+}
+void APPlayerState::SavePlayerData()
+{
+	USSaveGame* NewPlayerData = NewObject<USSaveGame>();
+	NewPlayerData->PlayerName = GetPlayerName();
+	NewPlayerData->Level = CharacterLevel;
+	NewPlayerData->Exp = EXP;
+
+	if (!UGameplayStatics::SaveGameToSlot(NewPlayerData, SaveSlotName, 0))
+	{
+		ABLOG(Error, TEXT("SaveGame Error!"));
+	}
 }
 
 float APPlayerState::GetExpRation() const
@@ -59,7 +71,14 @@ bool APPlayerState::AddEXP(int32 InComeExp)
 		DidLevelUp = true;
 	}
 	OnPlayerStateChanged.Broadcast();
+	SavePlayerData();
 	return DidLevelUp;
+}
+
+void APPlayerState::AddStageNums()
+{
+	StageNums++;
+	OnPlayerStateChanged.Broadcast();
 }
 
 void APPlayerState::SetCharacterLevel(int32 NewCharacterLevel)

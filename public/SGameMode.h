@@ -25,4 +25,13 @@ public:
 		- 빙의를 진행하는 시점은 플레이어 컨트롤러의 Possess, 폰의 PossessdeBy 함수로 파악 가능
 	*/
 
+	virtual void PostInitializeComponents() override;
+	void AddStageNums(class APPlayerController* StagePlayer);
+	int32 GetStage() const;
+
+private:
+	UPROPERTY()
+		class APGameState* PGameState;
+
+
 };

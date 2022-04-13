@@ -16,6 +16,11 @@ class UPGRADE_API APGameState : public AGameStateBase
 	GENERATED_BODY()
 public:
 	APGameState();
+
+	int32 GetTotalStage() const;
+	void AddStageNums();
+
 private:
-	
+	UPROPERTY(Transient)
+		int32 TotalStageNums;
 };

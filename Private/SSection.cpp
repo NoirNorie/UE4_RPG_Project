@@ -4,6 +4,8 @@
 #include "SSection.h"
 #include "PCharacter.h"
 #include "PPlayerController.h"
+#include "PGameState.h"
+#include "SGameMode.h"
 
 // Sets default values
 ASSection::ASSection()
@@ -76,6 +78,12 @@ void ASSection::OnKeyNPCDestroyed(AActor* DestroyedActor)
 
 	auto CharaCont = Cast<APPlayerController>(Chara->LastHitBy);
 	ABCHECK(CharaCont != nullptr);
+
+	auto APGameMode = Cast<ASGameMode>(GetWorld()->GetAuthGameMode());
+	ABCHECK(APGameMode != nullptr);
+	APGameMode->AddStageNums(CharaCont);
+
+
 
 	setState(ESectionState::COMPLETE);
 }

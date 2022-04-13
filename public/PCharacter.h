@@ -120,6 +120,7 @@ private:
 	// void Jump(); // 점프 함수는 캐릭터 클래스에 이미 존재한다.
 
 	// 비동기 로딩을 수행할 함수
+	void OnAssetLoadCharacter();
 	void OnAssetLoadCompleted();
 
 
@@ -168,6 +169,8 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = State, Meta = (AllowPrivateAccess = true))
 		float DeadTimer;
 	FTimerHandle DeadTimerHandle = {  };
+
+	TMap<int32, TSubclassOf<UAnimInstance>> ANImap;
 };
 
 

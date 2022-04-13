@@ -5,13 +5,13 @@
 //#include "CoreMinimal.h"
 #include "Upgrade.h"
 #include "Blueprint/UserWidget.h"
-#include "PHudWidget.generated.h"
+#include "PUpgradeWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UPGRADE_API UPHudWidget : public UUserWidget
+class UPGRADE_API UPUpgradeWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
@@ -24,19 +24,18 @@ protected:
 	void UpdatePlayerState();
 
 private:
+
 	TWeakObjectPtr<class UPCharacterStatComponent> CurrentCharacterStat;
 	TWeakObjectPtr<class APPlayerState> CurrentPlayerState;
 
 	UPROPERTY()
-		class UProgressBar* HPBar;
+		class UTextBlock* TB_Gold;
 	UPROPERTY()
-		class UProgressBar* ExpBar;
+		class UTextBlock* TB_Stage;
 	UPROPERTY()
-		class UProgressBar* MPBar;
+		class UButton* BT_Exit;
 	UPROPERTY()
-		class  UTextBlock* PlayerName;
+		class UButton* BT_LeftSelect;
 	UPROPERTY()
-		class UTextBlock* PlayerLevel;
-	UPROPERTY()
-		class UTextBlock* StageNum;
+		class UButton* BT_RightSelect;
 };

@@ -22,6 +22,7 @@ public:
 
 	class UPHudWidget* GetHudWidget() const;
 	void NPCKill(class APCharacter* KilledNPC) const;
+	void AddStageNums() const;
 
 protected:
 	virtual void BeginPlay() override;

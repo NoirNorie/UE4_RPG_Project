@@ -35,8 +35,8 @@ APPawn::APPawn()
 	Mesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 
 	static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(
-		TEXT("/Game/PlayerCharacter/Animations/PlayerAnimation.PlayerAnimation_C"));
-	if (Character_Anim.Succeeded()) Mesh->SetAnimInstanceClass(Character_Anim.Class);
+		TEXT(""));
+	//if (Character_Anim.Succeeded()) Mesh->SetAnimInstanceClass(Character_Anim.Class);
 
 
 }

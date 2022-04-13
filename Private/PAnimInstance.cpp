@@ -11,31 +11,25 @@ UPAnimInstance::UPAnimInstance()
 	IsDead = false;
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage(
-		TEXT("/Game/PlayerCharacter/Knight/KnightATKMont.KnightATKMont"));
+		TEXT("/Game/PlayerCharacter/Knight/KnightATKMontage.KnightATKMontage"));
 	if (Attack_Montage.Succeeded()) AttackMontage = Attack_Montage.Object;
 
-	//// 나이트
-	//static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Knight(TEXT("AnimMontage'/Game/PlayerCharacter/Knight/KnightATKMont.KnightATKMont'"));
-	//if (Attack_Montage_Knight.Succeeded())
-	//{
-	//	UAnimMontage* MontLoader = Attack_Montage_Knight.Object;
-	//	AnimMap.Add(1, MontLoader);
-	//}
-	//// 팔라딘
-	//static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Hammer(TEXT("AnimMontage'/Game/PlayerCharacter/Hammer/HammerATKMont.HammerATKMont'"));
-	//if (Attack_Montage_Hammer.Succeeded())
-	//{
-	//	UAnimMontage* MontLoader = Attack_Montage_Knight.Object;
-	//	AnimMap.Add(2, MontLoader);
-	//}
-	//// 검사
-	//static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_2Hand(TEXT("AnimMontage'/Game/PlayerCharacter/2Hand/2HandATKMont.2HandATKMont'"));
-	//if (Attack_Montage_2Hand.Succeeded())
-	//{
-	//	UAnimMontage* MontLoader = Attack_Montage_Knight.Object;
-	//	AnimMap.Add(3, MontLoader);
-	//}
-	// AttackMontage = nullptr; // 일단 지정하지 않음
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_2Hand(TEXT("AnimMontage'/Game/PlayerCharacter/2Hand/Hand2ATKMontage.Hand2ATKMontage'"));
+	if (Attack_Montage_2Hand.Succeeded())
+	{
+		MontMap.Add(1, Attack_Montage_2Hand.Object);
+	}
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Hammer(TEXT("AnimMontage'/Game/PlayerCharacter/Hammer/HammerATKMontage.HammerATKMontage'"));
+	
+	if (Attack_Montage_Hammer.Succeeded())
+	{
+		MontMap.Add(0, Attack_Montage_Hammer.Object);
+	}
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Knight(TEXT("AnimMontage'/Game/PlayerCharacter/Knight/KnightATKMontage.KnightATKMontage'"));
+	if (Attack_Montage_Knight.Succeeded())
+	{
+		MontMap.Add(2, Attack_Montage_Knight.Object);
+	}
 	charaClass = 0;
 }
 
@@ -100,7 +94,28 @@ void UPAnimInstance::AnimNotify_NextAttackCheck()
 // 캐릭터 직업에 따라 다른 공격모션을 선택하도록 설정하는 함수
 void UPAnimInstance::SetMontageAnim(int32 sel)
 {
-	charaClass = sel;
+	AttackMontage = nullptr;
+	switch (sel)
+	{
+	case 0:
+	{
+		AttackMontage = MontMap[0];
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, ("0"));
+		break;
+	}
+	case 1:
+	{
+		AttackMontage = MontMap[1];
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, ("1"));
+		break;
+	}
+	case 2:
+	{
+		AttackMontage = MontMap[2];
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, ("2"));
+		break;
+	}
+	}
 }
 
 FName UPAnimInstance::GetAttackMontageSectionName(int32 Section)

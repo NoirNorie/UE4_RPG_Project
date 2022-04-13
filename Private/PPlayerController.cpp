@@ -34,6 +34,11 @@ void APPlayerController::BeginPlay()
 
 }
 
+void APPlayerController::AddStageNums() const
+{
+	PState->AddStageNums();
+}
+
 UPHudWidget* APPlayerController::GetHudWidget() const
 {
 	return HUDWidget;
