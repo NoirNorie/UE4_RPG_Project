@@ -19,6 +19,7 @@ class UPGRADE_API UPAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 public:
 	UPAnimInstance();
+	// virtual void NativeBeginPlay() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 	void PlayAttackMontage();
@@ -34,6 +35,9 @@ public:
 
 	int32 charaClass;
 
+	// 애니메이션 몽타주
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
+		UAnimMontage* AttackMontage;
 private:
 
 
@@ -43,9 +47,7 @@ private:
 		float CurrentPawnSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = trie))
 		bool IsInAir; // 공중에 있는지 판정할 함수
-	// 애니메이션 몽타주
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-		UAnimMontage* AttackMontage;
+
 
 	// 노티파이
 	UFUNCTION()
@@ -58,6 +60,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 		bool IsDead;
 
-	TMap<int32, UAnimMontage*> MontMap;
+	FSoftObjectPath CharacterAssetToLoad = FSoftObjectPath(nullptr);
+	TSharedPtr<struct FStreamableHandle> AssetStreamingHandle;
 
+	TMap<int32, UAnimMontage*> MontMap;
+	bool unload = true;
 };

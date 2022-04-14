@@ -108,6 +108,8 @@ public:
 	// 경험치
 	int32 GetExp() const;
 
+	int32 GetCharaClass();
+
 private:
 	// 카메라 상하좌우 조작
 	void UpDown(float NewAxisValue);
@@ -120,7 +122,6 @@ private:
 	// void Jump(); // 점프 함수는 캐릭터 클래스에 이미 존재한다.
 
 	// 비동기 로딩을 수행할 함수
-	void OnAssetLoadCharacter();
 	void OnAssetLoadCompleted();
 
 
@@ -178,7 +179,7 @@ private:
 - 플레이어 콜리전관련
 - PlayerCharacter = ECC_GameTraceChannel1
 - Attack		  = ECC_GameTraceChannel2
-	+DefaultChannelResponses=(Channel=ECC_GameTraceChannel1,DefaultResponse=ECR_Block,bTraceType=False,bStaticObject=False,Name="PlayerCharacter")
-	+DefaultChannelResponses=(Channel=ECC_GameTraceChannel2,DefaultResponse=ECR_Ignore,bTraceType=True,bStaticObject=False,Name="Attack")
++DefaultChannelResponses=(Channel=ECC_GameTraceChannel1,DefaultResponse=ECR_Block,bTraceType=False,bStaticObject=False,Name="PlayerCharacter")
++DefaultChannelResponses=(Channel=ECC_GameTraceChannel2,DefaultResponse=ECR_Ignore,bTraceType=True,bStaticObject=False,Name="Attack")
 
 */

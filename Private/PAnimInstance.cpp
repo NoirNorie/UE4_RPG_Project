@@ -3,6 +3,8 @@
 
 #include "PAnimInstance.h"
 #include "PCharacter.h"
+#include "PGameInstance.h"
+#include "PCharacterSetting.h" //비동기 로딩용 세팅 헤더
 
 UPAnimInstance::UPAnimInstance()
 {
@@ -10,28 +12,44 @@ UPAnimInstance::UPAnimInstance()
 	IsInAir = false;
 	IsDead = false;
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage(
-		TEXT("/Game/PlayerCharacter/Knight/KnightATKMontage.KnightATKMontage"));
-	if (Attack_Montage.Succeeded()) AttackMontage = Attack_Montage.Object;
+	//static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage(
+	//	TEXT("/Game/PlayerCharacter/Knight/KnightATKMontage.KnightATKMontage"));
+	//if (Attack_Montage.Succeeded()) AttackMontage = Attack_Montage.Object;
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_2Hand(TEXT("AnimMontage'/Game/PlayerCharacter/2Hand/Hand2ATKMontage.Hand2ATKMontage'"));
-	if (Attack_Montage_2Hand.Succeeded())
-	{
-		MontMap.Add(1, Attack_Montage_2Hand.Object);
-	}
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Hammer(TEXT("AnimMontage'/Game/PlayerCharacter/Hammer/HammerATKMontage.HammerATKMontage'"));
-	
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Hammer(TEXT("/Game/PlayerCharacter/Hammer/HammerATKMontage.HammerATKMontage"));
 	if (Attack_Montage_Hammer.Succeeded())
 	{
 		MontMap.Add(0, Attack_Montage_Hammer.Object);
 	}
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Knight(TEXT("AnimMontage'/Game/PlayerCharacter/Knight/KnightATKMontage.KnightATKMontage'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_2Hand(TEXT("/Game/PlayerCharacter/2Hand/Hand2ATKMontage.Hand2ATKMontage"));
+	if (Attack_Montage_2Hand.Succeeded())
+	{
+		MontMap.Add(1, Attack_Montage_2Hand.Object);
+	}
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Knight(TEXT("/Game/PlayerCharacter/Knight/KnightATKMontage.KnightATKMontage"));
 	if (Attack_Montage_Knight.Succeeded())
 	{
 		MontMap.Add(2, Attack_Montage_Knight.Object);
 	}
 	charaClass = 0;
 }
+
+//void UPAnimInstance::NativeBeginPlay()
+//{
+//	Super::NativeBeginPlay();
+//
+//	auto PawnGet = TryGetPawnOwner();
+//	auto Chara = Cast<APCharacter>(PawnGet);
+//	int32 IDX = Chara->GetCharaClass();
+//	auto PGameInst = Cast<UPGameInstance>(UPGameInstance::StaticClass());
+//	AssetStreamingHandle = PGameInst->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad,
+//		FStreamableDelegate::CreateUObject(this, &UPAnimInstance::SetMontageAnim));
+//}
+
+//void UPAnimInstance::OnAssetLoadCompleted()
+//{
+//
+//}
 
 void UPAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
@@ -51,6 +69,7 @@ void UPAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		{
 			IsInAir = Character->GetMovementComponent()->IsFalling();
 		}
+
 	}
 }
 
@@ -95,24 +114,29 @@ void UPAnimInstance::AnimNotify_NextAttackCheck()
 void UPAnimInstance::SetMontageAnim(int32 sel)
 {
 	AttackMontage = nullptr;
+	charaClass = sel;
+	UE_LOG(LogTemp, Log, TEXT("Montage Load %d"), sel);
 	switch (sel)
 	{
 	case 0:
 	{
-		AttackMontage = MontMap[0];
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, ("0"));
+		FString path = TEXT("/Game/PlayerCharacter/2Hand/Hand2ATKMontage.Hand2ATKMontage");
+		AttackMontage = Cast<UAnimMontage>(StaticLoadObject(UAnimMontage::StaticClass(), NULL, *path));
+		ABCHECK(AttackMontage != nullptr);
 		break;
 	}
 	case 1:
 	{
-		AttackMontage = MontMap[1];
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, ("1"));
+		FString path = TEXT("/Game/PlayerCharacter/Hammer/HammerATKMontage.HammerATKMontage");
+		AttackMontage = Cast<UAnimMontage>(StaticLoadObject(UAnimMontage::StaticClass(), NULL, *path));
+		ABCHECK(AttackMontage != nullptr);
 		break;
 	}
 	case 2:
 	{
-		AttackMontage = MontMap[2];
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, ("2"));
+		FString path = TEXT("/Game/PlayerCharacter/Knight/KnightATKMontage.KnightATKMontage");
+		AttackMontage = Cast<UAnimMontage>(StaticLoadObject(UAnimMontage::StaticClass(), NULL, *path));
+		ABCHECK(AttackMontage != nullptr);
 		break;
 	}
 	}

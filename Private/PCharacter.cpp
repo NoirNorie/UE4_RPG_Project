@@ -40,18 +40,18 @@ APCharacter::APCharacter()
 	if (Character_Anim.Succeeded())
 	{
 		GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
-		ANImap.Add(2, Character_Anim.Class);
+		//ANImap.Add(2, Character_Anim.Class);
 	}
-	static ConstructorHelpers::FClassFinder<UAnimInstance>AnimLoad1(TEXT("/Game/PlayerCharacter/Hammer/HammerAnimation.HammerAnimation_C"));
-	if (AnimLoad1.Succeeded())
-	{
-		ANImap.Add(0, AnimLoad1.Class);
-	}
-	static ConstructorHelpers::FClassFinder<UAnimInstance>AnimLoad2(TEXT("/Game/PlayerCharacter/2Hand/Hand2Animation.Hand2Animation_C"));
-	if (AnimLoad2.Succeeded())
-	{
-		ANImap.Add(1, AnimLoad2.Class);
-	}
+	//static ConstructorHelpers::FClassFinder<UAnimInstance>AnimLoad1(TEXT("/Game/PlayerCharacter/Hammer/HammerAnimation.HammerAnimation_C"));
+	//if (AnimLoad1.Succeeded())
+	//{
+	//	ANImap.Add(0, AnimLoad1.Class);
+	//}
+	//static ConstructorHelpers::FClassFinder<UAnimInstance>AnimLoad2(TEXT("/Game/PlayerCharacter/2Hand/Hand2Animation.Hand2Animation_C"));
+	//if (AnimLoad2.Succeeded())
+	//{
+	//	ANImap.Add(1, AnimLoad2.Class);
+	//}
 
 	// 사용할 애니메이션의 모드를 지정한다
 	// 블루프린트로 만든 것을 쓸 거라고 하는 것
@@ -167,7 +167,7 @@ void APCharacter::BeginPlay()
 	auto DefaultSetting = GetDefault<UPCharacterSetting>(); // 캐릭터 세팅 클래스에서 애셋을 가져온다
 	if (bIsPlayer)
 	{
-		AssetIndex = 2;
+		AssetIndex = 0;
 	}
 	else
 	{
@@ -213,7 +213,6 @@ void APCharacter::SetCharacterState(ECharacterState NewState)
 			ABLOG(Warning, TEXT("New NPC LEVEL : %d"), FinalLevel);
 			CharacterStat->SetNewLevel(FinalLevel);
 		}
-		PlayerAnim->SetMontageAnim(AssetIndex); // 공격 몽타주를 지정해준다.
 		SetActorHiddenInGame(true);
 		HPBarWidget->SetHiddenInGame(true);
 		SetCanBeDamaged(false);
@@ -238,15 +237,15 @@ void APCharacter::SetCharacterState(ECharacterState NewState)
 			SetControlMode(EControlMode::DIABLO);
 			GetCharacterMovement()->MaxWalkSpeed = 800.0f;
 			EnableInput(PController);
+			PlayerAnim->SetMontageAnim(AssetIndex);
 		}
 		else
 		{
 			SetControlMode(EControlMode::NPC);
 			GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 			AIController->RunAI(); // 비헤이비어 트리를 동작시킨다.
+			// PlayerAnim->SetMontageAnim(AssetIndex);
 		}
-
-
 		break;
 	}
 	case ECharacterState::DEAD:
@@ -290,8 +289,8 @@ void APCharacter::PostInitializeComponents()
 
 	PlayerAnim = Cast<UPAnimInstance>(GetMesh()->GetAnimInstance());
 	ABCHECK(nullptr != PlayerAnim);
-	PlayerAnim->OnMontageEnded.AddDynamic(this, &APCharacter::OnAttackMontageEnded);
 
+	PlayerAnim->OnMontageEnded.AddDynamic(this, &APCharacter::OnAttackMontageEnded);
 
 	PlayerAnim->OnNextAttackCheck.AddLambda([this]()->void {
 		ABLOG(Warning, TEXT("OnNextAttackCheck"));
@@ -643,10 +642,6 @@ void APCharacter::PossessedBy(AController* NewController)
 		SetControlMode(EControlMode::NPC);
 		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 	}
-}
-
-void APCharacter::OnAssetLoadCharacter()
-{
 
 }
 
@@ -655,9 +650,43 @@ void APCharacter::OnAssetLoadCompleted()
 	USkeletalMesh* AssetLoaded = Cast<USkeletalMesh>(AssetStreamingHandle->GetLoadedAsset());
 	AssetStreamingHandle.Reset();
 	ABCHECK(AssetLoaded != nullptr);
+	UE_LOG(LogTemp, Log, TEXT("ASYNC Load %d"), AssetIndex);
+	// 애니메이션도 런타임에 변경해줌
+	switch(AssetIndex)
+	{
+	case 0:
+	{
+		FString Anim_Path = TEXT("/Game/PlayerCharacter/Hammer/HammerAnimation.HammerAnimation_C");
+		UClass* AssetAnim = StaticLoadClass(UAnimInstance::StaticClass(), NULL, *Anim_Path);
+		ABCHECK(AssetAnim != nullptr);
+		GetMesh()->SetAnimInstanceClass(AssetAnim);
+		UE_LOG(LogTemp, Log, TEXT("Load %d"), 0);
+		break;
+	}
+	case 1:
+	{
+		FString Anim_Path = TEXT("/Game/PlayerCharacter/2Hand/Hand2Animation.Hand2Animation_C");
+		UClass* AssetAnim = StaticLoadClass(UAnimInstance::StaticClass(), NULL, *Anim_Path);
+		ABCHECK(AssetAnim != nullptr);
+		GetMesh()->SetAnimInstanceClass(AssetAnim);
+		UE_LOG(LogTemp, Log, TEXT("Load %d"), 1);
+		break;
+	}
+	case 2:
+	{
+		FString Anim_Path = TEXT("/Game/PlayerCharacter/Knight/KnightAnimation.KnightAnimation_C");
+		UClass* AssetAnim = StaticLoadClass(UAnimInstance::StaticClass(), NULL, *Anim_Path);
+		ABCHECK(AssetAnim != nullptr);
+		GetMesh()->SetAnimInstanceClass(AssetAnim);
+		UE_LOG(LogTemp, Log, TEXT("Load %d"), 2);
+		break;
+	}
+	}
+
+	// GetMesh()->SetAnimInstanceClass(ANImap[AssetIndex]); // 애니메이션도 전환시킴
+
 	GetMesh()->SetSkeletalMesh(AssetLoaded); // 스켈레탈 메시를 가져옴
-	GetMesh()->SetAnimInstanceClass(ANImap[AssetIndex]); // 애니메이션도 전환시킴
-	PlayerAnim->SetMontageAnim(AssetIndex);				// 공격 몽타주도 그에 맞게 전환
+	PlayerAnim->SetMontageAnim(AssetIndex);
 
 	// 애셋을 가져오고 애니메이션을 가져오는 것 까지 성공했다면 준비 상태로 전환시킨다.
 	SetCharacterState(ECharacterState::READY);
@@ -666,4 +695,9 @@ void APCharacter::OnAssetLoadCompleted()
 int32 APCharacter::GetExp() const
 {
 	return CharacterStat->GetDropExp();
+}
+
+int32 APCharacter::GetCharaClass()
+{
+	return AssetIndex;
 }
