@@ -40,8 +40,8 @@ APCharacter::APCharacter()
 	if (Character_Anim.Succeeded())
 	{
 		GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
-		//ANImap.Add(2, Character_Anim.Class);
 	}
+
 	//static ConstructorHelpers::FClassFinder<UAnimInstance>AnimLoad1(TEXT("/Game/PlayerCharacter/Hammer/HammerAnimation.HammerAnimation_C"));
 	//if (AnimLoad1.Succeeded())
 	//{
@@ -125,7 +125,7 @@ APCharacter::APCharacter()
 	//	}
 	//}
 
-	AssetIndex = 2;
+	// AssetIndex = 2;
 	SetActorHiddenInGame(true);
 	HPBarWidget->SetHiddenInGame(true);
 	// bCanBeDamaged = false; // 책이 나올 당시에는 이렇게 접근이 가능했음
@@ -167,7 +167,7 @@ void APCharacter::BeginPlay()
 	auto DefaultSetting = GetDefault<UPCharacterSetting>(); // 캐릭터 세팅 클래스에서 애셋을 가져온다
 	if (bIsPlayer)
 	{
-		AssetIndex = 0;
+		AssetIndex = 2;
 	}
 	else
 	{
@@ -181,6 +181,7 @@ void APCharacter::BeginPlay()
 	AssetStreamingHandle = PGameInst->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad,
 		FStreamableDelegate::CreateUObject(this, &APCharacter::OnAssetLoadCompleted)); // 캐릭터 애셋을 가져옴
 	SetCharacterState(ECharacterState::LOADING);
+	PlayerAnim->SetMontageAnim(AssetIndex);
 
 }
 
@@ -237,14 +238,14 @@ void APCharacter::SetCharacterState(ECharacterState NewState)
 			SetControlMode(EControlMode::DIABLO);
 			GetCharacterMovement()->MaxWalkSpeed = 800.0f;
 			EnableInput(PController);
-			PlayerAnim->SetMontageAnim(AssetIndex);
+
 		}
 		else
 		{
 			SetControlMode(EControlMode::NPC);
 			GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 			AIController->RunAI(); // 비헤이비어 트리를 동작시킨다.
-			// PlayerAnim->SetMontageAnim(AssetIndex);
+
 		}
 		break;
 	}
@@ -291,6 +292,7 @@ void APCharacter::PostInitializeComponents()
 	ABCHECK(nullptr != PlayerAnim);
 
 	PlayerAnim->OnMontageEnded.AddDynamic(this, &APCharacter::OnAttackMontageEnded);
+	UE_LOG(LogTemp, Log, TEXT("Montage Check %d"), 0);
 
 	PlayerAnim->OnNextAttackCheck.AddLambda([this]()->void {
 		ABLOG(Warning, TEXT("OnNextAttackCheck"));
@@ -301,7 +303,7 @@ void APCharacter::PostInitializeComponents()
 			PlayerAnim->JumpToAttackMontageSection(CurrentCombo);
 		}
 	});
-
+	UE_LOG(LogTemp, Log, TEXT("Montage Check %d"), 1);
 	PlayerAnim->OnAttackHitCheck.AddUObject(this, &APCharacter::AttackCheck);
 	// 공격 판정을 위해 애니메이션에 전달해준다.
 
@@ -496,7 +498,6 @@ void APCharacter::ViewChange()
 void APCharacter::Attack()
 {
 	ABLOG_S(Warning);
-
 	if (IsAttacking)
 	{
 		ABCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 1, MaxCombo));
@@ -509,6 +510,7 @@ void APCharacter::Attack()
 	{
 		ABCHECK(CurrentCombo == 0);
 		AttackStartComboState();
+
 		PlayerAnim->PlayAttackMontage();
 		PlayerAnim->JumpToAttackMontageSection(CurrentCombo);
 		IsAttacking = true;
@@ -643,6 +645,7 @@ void APCharacter::PossessedBy(AController* NewController)
 		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 	}
 
+
 }
 
 void APCharacter::OnAssetLoadCompleted()
@@ -656,7 +659,7 @@ void APCharacter::OnAssetLoadCompleted()
 	{
 	case 0:
 	{
-		FString Anim_Path = TEXT("/Game/PlayerCharacter/Hammer/HammerAnimation.HammerAnimation_C");
+		FString Anim_Path = TEXT("/Game/PlayerCharacter/Ham/HamAnim.HamAnim_C");
 		UClass* AssetAnim = StaticLoadClass(UAnimInstance::StaticClass(), NULL, *Anim_Path);
 		ABCHECK(AssetAnim != nullptr);
 		GetMesh()->SetAnimInstanceClass(AssetAnim);
@@ -665,7 +668,7 @@ void APCharacter::OnAssetLoadCompleted()
 	}
 	case 1:
 	{
-		FString Anim_Path = TEXT("/Game/PlayerCharacter/2Hand/Hand2Animation.Hand2Animation_C");
+		FString Anim_Path = TEXT("/Game/PlayerCharacter/Hand2/Hand2Anim.Hand2Anim_C");
 		UClass* AssetAnim = StaticLoadClass(UAnimInstance::StaticClass(), NULL, *Anim_Path);
 		ABCHECK(AssetAnim != nullptr);
 		GetMesh()->SetAnimInstanceClass(AssetAnim);
@@ -686,8 +689,9 @@ void APCharacter::OnAssetLoadCompleted()
 	// GetMesh()->SetAnimInstanceClass(ANImap[AssetIndex]); // 애니메이션도 전환시킴
 
 	GetMesh()->SetSkeletalMesh(AssetLoaded); // 스켈레탈 메시를 가져옴
-	PlayerAnim->SetMontageAnim(AssetIndex);
+	//PlayerAnim->SetMontageAnim(AssetIndex);
 
+	//PostInitializeComponents();
 	// 애셋을 가져오고 애니메이션을 가져오는 것 까지 성공했다면 준비 상태로 전환시킨다.
 	SetCharacterState(ECharacterState::READY);
 }

@@ -12,44 +12,20 @@ UPAnimInstance::UPAnimInstance()
 	IsInAir = false;
 	IsDead = false;
 
-	//static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage(
-	//	TEXT("/Game/PlayerCharacter/Knight/KnightATKMontage.KnightATKMontage"));
-	//if (Attack_Montage.Succeeded()) AttackMontage = Attack_Montage.Object;
+	AttackMontage = nullptr;
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Hammer(TEXT("/Game/PlayerCharacter/Hammer/HammerATKMontage.HammerATKMontage"));
-	if (Attack_Montage_Hammer.Succeeded())
-	{
-		MontMap.Add(0, Attack_Montage_Hammer.Object);
-	}
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_2Hand(TEXT("/Game/PlayerCharacter/2Hand/Hand2ATKMontage.Hand2ATKMontage"));
-	if (Attack_Montage_2Hand.Succeeded())
-	{
-		MontMap.Add(1, Attack_Montage_2Hand.Object);
-	}
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Hammer(TEXT("/Game/PlayerCharacter/Ham/HammerATKMont.HammerATKMont"));
+	if (Attack_Montage_Hammer.Succeeded()) MontMap.Add(0, Attack_Montage_Hammer.Object);
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Hand2(TEXT("/Game/PlayerCharacter/Hand2/Hand2ATKMont.Hand2ATKMont"));
+	if (Attack_Montage_Hand2.Succeeded()) MontMap.Add(1, Attack_Montage_Hand2.Object);
+
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Knight(TEXT("/Game/PlayerCharacter/Knight/KnightATKMontage.KnightATKMontage"));
-	if (Attack_Montage_Knight.Succeeded())
-	{
-		MontMap.Add(2, Attack_Montage_Knight.Object);
-	}
+	if (Attack_Montage_Knight.Succeeded()) MontMap.Add(2, Attack_Montage_Knight.Object);
+
 	charaClass = 0;
 }
 
-//void UPAnimInstance::NativeBeginPlay()
-//{
-//	Super::NativeBeginPlay();
-//
-//	auto PawnGet = TryGetPawnOwner();
-//	auto Chara = Cast<APCharacter>(PawnGet);
-//	int32 IDX = Chara->GetCharaClass();
-//	auto PGameInst = Cast<UPGameInstance>(UPGameInstance::StaticClass());
-//	AssetStreamingHandle = PGameInst->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad,
-//		FStreamableDelegate::CreateUObject(this, &UPAnimInstance::SetMontageAnim));
-//}
-
-//void UPAnimInstance::OnAssetLoadCompleted()
-//{
-//
-//}
 
 void UPAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
@@ -113,30 +89,25 @@ void UPAnimInstance::AnimNotify_NextAttackCheck()
 // 캐릭터 직업에 따라 다른 공격모션을 선택하도록 설정하는 함수
 void UPAnimInstance::SetMontageAnim(int32 sel)
 {
-	AttackMontage = nullptr;
+	// AttackMontage = nullptr;
 	charaClass = sel;
 	UE_LOG(LogTemp, Log, TEXT("Montage Load %d"), sel);
 	switch (sel)
 	{
 	case 0:
 	{
-		FString path = TEXT("/Game/PlayerCharacter/2Hand/Hand2ATKMontage.Hand2ATKMontage");
-		AttackMontage = Cast<UAnimMontage>(StaticLoadObject(UAnimMontage::StaticClass(), NULL, *path));
-		ABCHECK(AttackMontage != nullptr);
+		AttackMontage = MontMap[0];
 		break;
+
 	}
 	case 1:
 	{
-		FString path = TEXT("/Game/PlayerCharacter/Hammer/HammerATKMontage.HammerATKMontage");
-		AttackMontage = Cast<UAnimMontage>(StaticLoadObject(UAnimMontage::StaticClass(), NULL, *path));
-		ABCHECK(AttackMontage != nullptr);
+		AttackMontage = MontMap[1];
 		break;
 	}
 	case 2:
 	{
-		FString path = TEXT("/Game/PlayerCharacter/Knight/KnightATKMontage.KnightATKMontage");
-		AttackMontage = Cast<UAnimMontage>(StaticLoadObject(UAnimMontage::StaticClass(), NULL, *path));
-		ABCHECK(AttackMontage != nullptr);
+		AttackMontage = MontMap[2];
 		break;
 	}
 	}

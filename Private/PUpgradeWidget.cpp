@@ -5,6 +5,7 @@
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
 #include "PCharacterStatComponent.h"
+#include "PUpgradeWidgetBT.h"
 #include "PPlayerState.h"
 
 void UPUpgradeWidget::BindCharacterStat(class UPCharacterStatComponent* CharacterStat)
@@ -28,10 +29,8 @@ void UPUpgradeWidget::NativeConstruct()
 	ABCHECK(TB_Stage != nullptr);
 	BT_Exit = Cast<UButton>(GetWidgetFromName(TEXT("BT_Exit")));
 	ABCHECK(BT_Exit);
-	BT_LeftSelect = Cast<UButton>(GetWidgetFromName(TEXT("BT_LeftSelect")));
-	ABCHECK(BT_LeftSelect);
-	BT_RightSelect = Cast<UButton>(GetWidgetFromName(TEXT("BT_RightSelect")));
-	ABCHECK(BT_RightSelect);
+	UI_UpgradeBT = Cast<UPUpgradeWidgetBT>(GetWidgetFromName(TEXT("UI_UpgradeBT")));
+	ABCHECK(UI_UpgradeBT);
 }
 
 void UPUpgradeWidget::UpdateCharacterStat()

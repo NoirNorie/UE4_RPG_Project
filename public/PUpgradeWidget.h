@@ -35,7 +35,5 @@ private:
 	UPROPERTY()
 		class UButton* BT_Exit;
 	UPROPERTY()
-		class UButton* BT_LeftSelect;
-	UPROPERTY()
-		class UButton* BT_RightSelect;
+		class UPUpgradeWidgetBT* UI_UpgradeBT;
 };
