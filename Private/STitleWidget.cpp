@@ -3,6 +3,7 @@
 
 #include "STitleWidget.h"
 #include "Components/Button.h"
+#include "SSaveGame.h"
 
 void USTitleWidget::NativeConstruct()
 {
@@ -14,20 +15,35 @@ void USTitleWidget::NativeConstruct()
 
 	BT_Continue = Cast<UButton>(GetWidgetFromName(TEXT("BT_Continue")));
 	ABCHECK(BT_Continue != nullptr);
-	BT_Continue->OnClicked.AddDynamic(this, &USTitleWidget::OnContinueClicked);
+	LoadGame = Cast<USSaveGame>(UGameplayStatics::LoadGameFromSlot("Player1", 0));
+	if (IsValid(LoadGame))
+	{
+		UE_LOG(LogTemp, Log, TEXT("Save File Exist"));
+		BT_Continue->SetIsEnabled(true);
+		BT_Continue->OnClicked.AddDynamic(this, &USTitleWidget::OnContinueClicked);
+	}
+	else
+	{
+		BT_Continue->SetIsEnabled(false);
+	}
+
 
 	BT_Exit = Cast<UButton>(GetWidgetFromName(TEXT("BT_Exit")));
 	ABCHECK(BT_Exit != nullptr);
+
 	BT_Exit->OnClicked.AddDynamic(this, &USTitleWidget::OnExitClicked);
 }
 
 void USTitleWidget::OnNewGameClicked()
 {
-
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("TitleSelect")); // 캐릭터 선택 화면으로 이동
 }
 void USTitleWidget::OnContinueClicked()
 {
-
+	// 세이브 파일을 가져와야 함
+	UE_LOG(LogTemp, Log, TEXT("Load Check %s"), *LoadGame->PlayerName);
+	LoadGame->PlayerName = TEXT("CHECK");
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("PlayMap")); // 캐릭터 선택 화면으로 이동
 }
 void USTitleWidget::OnExitClicked()
 {

@@ -32,4 +32,6 @@ private: // 내부 함수
 	UFUNCTION()
 		void OnExitClicked();
 	
+	UPROPERTY()
+		class USSaveGame* LoadGame;
 };
