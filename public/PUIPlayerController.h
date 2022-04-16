@@ -19,7 +19,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = UI)
 		TSubclassOf<class UUserWidget> UIWidgetClass;
-
 	UPROPERTY()
 		class UUserWidget* UIWidgetInstance;
 	

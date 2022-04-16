@@ -13,10 +13,9 @@ void APUIPlayerController::BeginPlay()
 	ABCHECK(UIWidgetInstance != nullptr);
 	UIWidgetInstance->AddToViewport();
 
+
 	FInputModeUIOnly Mode;
 	Mode.SetWidgetToFocus(UIWidgetInstance->GetCachedWidget());
 	SetInputMode(Mode); // UI만 동작시키도록 함
 	bShowMouseCursor = true; // 마우스를 보이게 만듦
-
-
 }

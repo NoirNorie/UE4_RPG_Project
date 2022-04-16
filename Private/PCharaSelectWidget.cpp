@@ -52,15 +52,14 @@ void UPCharaSelectWidget::NativeConstruct()
 
 	NextBT = Cast<UButton>(GetWidgetFromName(TEXT("NextBT")));
 	ABCHECK(NextBT != nullptr);
-	PrevBT->OnClicked.AddDynamic(this, &UPCharaSelectWidget::OnPrevClicked);
+	NextBT->OnClicked.AddDynamic(this, &UPCharaSelectWidget::OnNextClicked);
 
 	StartBT = Cast<UButton>(GetWidgetFromName(TEXT("StartBT")));
 	ABCHECK(StartBT != nullptr);
-	PrevBT->OnClicked.AddDynamic(this, &UPCharaSelectWidget::OnPrevClicked);
+	StartBT->OnClicked.AddDynamic(this, &UPCharaSelectWidget::OnStartClicked);
 
 	CLASSTB = Cast<UTextBlock>(GetWidgetFromName(TEXT("CLASSTB")));
 	ABCHECK(CLASSTB != nullptr);
-	PrevBT->OnClicked.AddDynamic(this, &UPCharaSelectWidget::OnPrevClicked);
 
 }
 
@@ -80,7 +79,7 @@ void UPCharaSelectWidget::OnStartClicked()
 	NewPlayerData->PlayerName = TEXT("Knight");
 	NewPlayerData->Level = 1;
 	NewPlayerData->Exp = 0;
-
+	
 	auto PState = GetDefault<APPlayerState>();
 	if (UGameplayStatics::SaveGameToSlot(NewPlayerData, PState->SaveSlotName, 0))
 	{
