@@ -17,7 +17,12 @@
 - public, private: 게임 소스 폴더
 - UpgradeSetting: 세팅 폴더
 
+------------------
 
 ### 캐릭터 선택
 
+
 ![charaSelect](https://user-images.githubusercontent.com/71704247/163716665-f8a070d2-f2aa-4c07-b958-dafd1dd803d7.gif)
+
+
+------------------
