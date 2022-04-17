@@ -24,6 +24,8 @@ protected: // 위젯 기능
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 		int32 MaxIDX;
 
+	void SetSKANIM();
+
 	TWeakObjectPtr<USkeletalMeshComponent> TargetComponent;
 
 protected: // 위젯 내부
@@ -43,4 +45,5 @@ private: // 클릭 함수
 		void OnNextClicked();
 	UFUNCTION()
 		void OnStartClicked();
+	FText charaName;
 };

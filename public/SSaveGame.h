@@ -25,4 +25,6 @@ public:
 		int32 Exp;
 	UPROPERTY()
 		FString PlayerName;
+	UPROPERTY()
+		int32 CharacterIDX;
 };

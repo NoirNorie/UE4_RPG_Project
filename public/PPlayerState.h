@@ -27,6 +27,7 @@ public:
 	// int32 GetGameScore() const;		 // 플레이어의 점수를 표시할 함수
 	int32 GetCharacterLevel() const; // 플레이어의 레벨을 표시할 함수
 	int32 GetStageNums() const;		 // 플레이어의 스테이지를 가져올 함수
+	int32 GetCharacterIndex() const;  // 플레이어의 직업을 가져올 함수
 
 	void InitPlayerData(); // 플레이어 데이터 초기화
 	void SavePlayerData(); // 플레이어 데이터 저장
@@ -47,6 +48,8 @@ protected:
 		int32 EXP;
 	UPROPERTY(Transient)
 		int32 StageNums; // 현재 스테이지
+	UPROPERTY(Transient)
+		int32 CharacterIDX;
 	
 private:
 	void SetCharacterLevel(int32 NewCharacterLevel);

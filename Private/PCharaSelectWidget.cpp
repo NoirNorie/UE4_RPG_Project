@@ -11,6 +11,7 @@
 #include "Components/TextBlock.h"
 #include "SSaveGame.h"
 #include "PPlayerState.h"
+#include "PUIPlayerController.h"
 
 
 void UPCharaSelectWidget::NextCharacter(bool bForward)
@@ -29,7 +30,11 @@ void UPCharaSelectWidget::NextCharacter(bool bForward)
 	ABCHECK(TargetComponent.IsValid());
 
 	USkeletalMesh* Asset = GameInst->StreamableManager.LoadSynchronous<USkeletalMesh>(AssetRef);
-	if (Asset != nullptr) TargetComponent->SetSkeletalMesh(Asset);
+	if (Asset != nullptr)
+	{
+		TargetComponent->SetSkeletalMesh(Asset);
+		SetSKANIM();
+	}
 }
 
 void UPCharaSelectWidget::NativeConstruct()
@@ -37,14 +42,19 @@ void UPCharaSelectWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	CurrentIDX = 0;
+	charaName = FText::FromString("Hammer"); // 비동기 로딩 시 가장 첫번째 존재하는 액터는 망치든 캐릭터
 	auto CharaSetting = GetDefault<UPCharacterSetting>();
 	MaxIDX = CharaSetting->CharacterAssets.Num();
 
+
+	// 반복자 구문
+	// 월드 상에 존재하는 스켈레탈 메시 액터들만을 담고 반복자로 참조할 수 있음
 	for (TActorIterator<ASkeletalMeshActor> iter(GetWorld()); iter; ++iter)
 	{
 		TargetComponent = iter->GetSkeletalMeshComponent();
 		break;
 	}
+
 
 	PrevBT = Cast<UButton>(GetWidgetFromName(TEXT("PrevBT")));
 	ABCHECK(PrevBT != nullptr);
@@ -60,7 +70,53 @@ void UPCharaSelectWidget::NativeConstruct()
 
 	CLASSTB = Cast<UTextBlock>(GetWidgetFromName(TEXT("CLASSTB")));
 	ABCHECK(CLASSTB != nullptr);
+	CLASSTB->SetText(charaName);
 
+}
+
+// 런타임 로딩을 수행하는 함수
+void UPCharaSelectWidget::SetSKANIM()
+{
+	for (TActorIterator<ASkeletalMeshActor> iter(GetWorld()); iter; ++iter)
+	{
+		TargetComponent = iter->GetSkeletalMeshComponent(); 
+		switch (CurrentIDX)
+		{
+		case 0:
+		{
+			TargetComponent = iter->GetSkeletalMeshComponent(); // 스켈레탈 메시를 가져온다
+			UAnimationAsset* AssetAnim = LoadObject<UAnimationAsset>(NULL,
+				TEXT("/Game/PlayerCharacter/Ham/Hammer_Idle.Hammer_Idle"), NULL, LOAD_None, NULL);			// 런타임에 오브젝트를 가져온다
+			iter->GetSkeletalMeshComponent()->SetAnimation(AssetAnim);
+			iter->GetSkeletalMeshComponent()->PlayAnimation(AssetAnim, true);
+			charaName = FText::FromString("Hammer");
+			break;
+		}
+		case 1:
+		{
+			TargetComponent = iter->GetSkeletalMeshComponent();
+			UAnimationAsset* AssetAnim = LoadObject<UAnimationAsset>(NULL,
+				TEXT("/Game/PlayerCharacter/Hand2/2Handed_Idle.2Handed_Idle"), NULL, LOAD_None, NULL);
+			iter->GetSkeletalMeshComponent()->SetAnimation(AssetAnim);
+			iter->GetSkeletalMeshComponent()->PlayAnimation(AssetAnim, true);
+			charaName = FText::FromString("Sword");
+			break;
+		}
+		case 2:
+		{
+			TargetComponent = iter->GetSkeletalMeshComponent();
+			UAnimationAsset* AssetAnim = LoadObject<UAnimationAsset>(NULL,
+				TEXT("/Game/PlayerCharacter/Knight/Knight_Idle.Knight_Idle"), NULL, LOAD_None, NULL);
+			iter->GetSkeletalMeshComponent()->SetAnimation(AssetAnim);
+			iter->GetSkeletalMeshComponent()->PlayAnimation(AssetAnim, true);
+			charaName = FText::FromString("Knight");
+			break;
+		}
+		}
+
+		break;
+	}
+	CLASSTB->SetText(charaName);
 }
 
 void UPCharaSelectWidget::OnPrevClicked()
@@ -75,18 +131,20 @@ void UPCharaSelectWidget::OnNextClicked()
 
 void UPCharaSelectWidget::OnStartClicked()
 {
+	// 위에서 정한 캐릭터의 정보를 세이브 파일로 넘겨서 세이브 파일을 제작하고 게임을 시작하도록 만든다.
 	USSaveGame* NewPlayerData = NewObject<USSaveGame>();
-	NewPlayerData->PlayerName = TEXT("Knight");
+	NewPlayerData->PlayerName = charaName.ToString();
 	NewPlayerData->Level = 1;
 	NewPlayerData->Exp = 0;
+	NewPlayerData->CharacterIDX = CurrentIDX;
 	
 	auto PState = GetDefault<APPlayerState>();
-	if (UGameplayStatics::SaveGameToSlot(NewPlayerData, PState->SaveSlotName, 0))
+	if (UGameplayStatics::SaveGameToSlot(NewPlayerData, PState->SaveSlotName, 0)) // 세이브 파일을 불러오는데 없는 경우
 	{
 		UGameplayStatics::OpenLevel(GetWorld(), TEXT("PlayMap")); // 게임을 시작함
 	}
 	else
 	{
-		ABLOG(Error, TEXT("SaveGame Error"));
+		ABLOG(Error, TEXT("SaveGame Error")); // 로그를 찍는다.
 	}
 }

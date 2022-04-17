@@ -167,7 +167,9 @@ void APCharacter::BeginPlay()
 	auto DefaultSetting = GetDefault<UPCharacterSetting>(); // 캐릭터 세팅 클래스에서 애셋을 가져온다
 	if (bIsPlayer)
 	{
-		AssetIndex = 2;
+		auto PState = Cast<APPlayerState>(GetPlayerState());
+		ABCHECK(PState != nullptr);
+		AssetIndex = PState->GetCharacterIndex();
 	}
 	else
 	{

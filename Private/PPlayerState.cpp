@@ -10,6 +10,7 @@ APPlayerState::APPlayerState()
 	CharacterLevel = 1;
 	StageNums = 1;
 	EXP = 0;
+	CharacterIDX = 0;
 	SaveSlotName = TEXT("Player1");
 }
 
@@ -34,6 +35,7 @@ void APPlayerState::InitPlayerData() // 플레이어 데이터를 읽어들일 �
 	SetPlayerName(PSaveGame->PlayerName);
 	SetCharacterLevel(PSaveGame->Level);
 	EXP = PSaveGame->Exp;
+	CharacterIDX = PSaveGame->CharacterIDX;
 	SavePlayerData();
 }
 void APPlayerState::SavePlayerData()
@@ -42,6 +44,7 @@ void APPlayerState::SavePlayerData()
 	NewPlayerData->PlayerName = GetPlayerName();
 	NewPlayerData->Level = CharacterLevel;
 	NewPlayerData->Exp = EXP;
+	NewPlayerData->CharacterIDX = CharacterIDX;
 
 	if (!UGameplayStatics::SaveGameToSlot(NewPlayerData, SaveSlotName, 0))
 	{
@@ -90,4 +93,9 @@ void APPlayerState::SetCharacterLevel(int32 NewCharacterLevel)
 	ABCHECK(CurrentStatData != nullptr);
 
 	CharacterLevel = NewCharacterLevel;
+}
+
+int32 APPlayerState::GetCharacterIndex() const
+{
+	return CharacterIDX;
 }

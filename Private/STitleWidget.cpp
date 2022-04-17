@@ -16,13 +16,13 @@ void USTitleWidget::NativeConstruct()
 	BT_Continue = Cast<UButton>(GetWidgetFromName(TEXT("BT_Continue")));
 	ABCHECK(BT_Continue != nullptr);
 	LoadGame = Cast<USSaveGame>(UGameplayStatics::LoadGameFromSlot("Player1", 0));
-	if (IsValid(LoadGame))
+	if (IsValid(LoadGame)) // 세이브 파일이 존재하면 continue 버튼이 활성화된다.
 	{
 		UE_LOG(LogTemp, Log, TEXT("Save File Exist"));
 		BT_Continue->SetIsEnabled(true);
 		BT_Continue->OnClicked.AddDynamic(this, &USTitleWidget::OnContinueClicked);
 	}
-	else
+	else // 없으면 continue 버튼을 비활성화 한다.
 	{
 		BT_Continue->SetIsEnabled(false);
 	}

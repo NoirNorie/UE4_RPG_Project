@@ -8,4 +8,5 @@ USSaveGame::USSaveGame()
 	Level = 1;
 	Exp = 0;
 	PlayerName = TEXT("Guest");
+	CharacterIDX = 0;
 }
