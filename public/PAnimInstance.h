@@ -19,7 +19,7 @@ class UPGRADE_API UPAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 public:
 	UPAnimInstance();
-	// virtual void NativeBeginPlay() override;
+	virtual void NativeBeginPlay() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 	void PlayAttackMontage();

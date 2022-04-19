@@ -26,6 +26,11 @@ UPAnimInstance::UPAnimInstance()
 	charaClass = 0;
 }
 
+void UPAnimInstance::NativeBeginPlay()
+{
+	UE_LOG(LogTemp, Log, TEXT("Load %d"), 1);
+	AttackMontage = MontMap[1];
+}
 
 void UPAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
@@ -58,7 +63,7 @@ void UPAnimInstance::SetDeadAnim()
 void UPAnimInstance::PlayAttackMontage()
 {
 	ABCHECK(!IsDead);
-	ABCHECK(AttackMontage);
+	ABCHECK(AttackMontage != nullptr);
 	if (!Montage_IsPlaying(AttackMontage))
 	{
 		Montage_Play(AttackMontage, 1.0f);
@@ -90,36 +95,7 @@ void UPAnimInstance::AnimNotify_NextAttackCheck()
 // 캐릭터 직업에 따라 다른 공격모션을 선택하도록 설정하는 함수
 void UPAnimInstance::SetMontageAnim(UAnimMontage* Mont)
 {
-	// AttackMontage = nullptr;
-	// charaClass = sel;
-	// UE_LOG(LogTemp, Log, TEXT("Montage Load %d"), sel);
 	AttackMontage = Mont;
-	//switch (sel)
-	//{
-	//case 0:
-	//{
-	//	// AttackMontage = MontMap[0];
-	//	UAnimMontage* Mont = LoadObject<UAnimMontage>(NULL,
-	//		TEXT("/Game/PlayerCharacter/Ham/HammerATKMont.HammerATKMont"), NULL, LOAD_None, NULL);
-	//	AttackMontage = Mont;
-	//	break;
-
-	//}
-	//case 1:
-	//{
-	//	UAnimMontage* Mont = LoadObject<UAnimMontage>(NULL,
-	//		TEXT("/Game/PlayerCharacter/Hand2/Hand2ATKMont.Hand2ATKMont"), NULL, LOAD_None, NULL);
-	//	AttackMontage = Mont;
-	//	break;
-	//}
-	//case 2:
-	//{
-	//	UAnimMontage* Mont = LoadObject<UAnimMontage>(NULL,
-	//		TEXT("/Game/PlayerCharacter/Knight/KnightATKMontage.KnightATKMontage"), NULL, LOAD_None, NULL);
-	//	AttackMontage = Mont;
-	//	break;
-	//}
-	//}
 }
 
 FName UPAnimInstance::GetAttackMontageSectionName(int32 Section)

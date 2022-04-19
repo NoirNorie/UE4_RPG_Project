@@ -657,51 +657,62 @@ void APCharacter::OnAssetLoadCompleted()
 	AssetStreamingHandle.Reset();
 	ABCHECK(AssetLoaded != nullptr);
 	UE_LOG(LogTemp, Log, TEXT("ASYNC Load %d"), AssetIndex);
+	GetMesh()->SetSkeletalMesh(AssetLoaded); // 스켈레탈 메시를 가져옴
 	// 애니메이션도 런타임에 변경해줌
 	switch(AssetIndex)
 	{
 	case 0:
 	{
-		FString Anim_Path = TEXT("/Game/PlayerCharacter/Ham/HamAnim.HamAnim_C");
-		UClass* AssetAnim = StaticLoadClass(UAnimInstance::StaticClass(), NULL, *Anim_Path);
+		//FString Anim_Path = TEXT("/Game/PlayerCharacter/Ham/HamAnim.HamAnim_C");
+		//UClass* AssetAnim = StaticLoadClass(UAnimInstance::StaticClass(), NULL, *Anim_Path);
+
+		UClass* AssetAnim = LoadClass<UAnimInstance>(NULL,
+			TEXT("/Game/PlayerCharacter/Ham/HamAnim.HamAnim_C"), NULL, LOAD_None, NULL);
 		ABCHECK(AssetAnim != nullptr);
 		GetMesh()->SetAnimInstanceClass(AssetAnim);
 		UE_LOG(LogTemp, Log, TEXT("Load %d"), 0);
 		UAnimMontage* Mont = LoadObject<UAnimMontage>(NULL,
 			TEXT("/Game/PlayerCharacter/Ham/HammerATKMont.HammerATKMont"), NULL, LOAD_None, NULL);
 		PlayerAnim->SetMontageAnim(Mont);
-		GetMesh()->GetAnimInstance()->Montage_Play(Mont);
 		break;
 	}
 	case 1:
 	{
-		FString Anim_Path = TEXT("/Game/PlayerCharacter/Hand2/Hand2Anim.Hand2Anim_C");
-		UClass* AssetAnim = StaticLoadClass(UAnimInstance::StaticClass(), NULL, *Anim_Path);
+		//FString Anim_Path = TEXT("/Game/PlayerCharacter/Hand2/Hand2Anim.Hand2Anim_C");
+		//UClass* AssetAnim = StaticLoadClass(UAnimInstance::StaticClass(), NULL, *Anim_Path);
+
+		UClass* AssetAnim = LoadClass<UAnimInstance>(NULL,
+			TEXT("/Game/PlayerCharacter/Hand2/Hand2Anim.Hand2Anim_C"), NULL, LOAD_None, NULL);
 		ABCHECK(AssetAnim != nullptr);
 		GetMesh()->SetAnimInstanceClass(AssetAnim);
 		UE_LOG(LogTemp, Log, TEXT("Load %d"), 1);
 		UAnimMontage* Mont = LoadObject<UAnimMontage>(NULL,
 			TEXT("/Game/PlayerCharacter/Hand2/Hand2ATKMont.Hand2ATKMont"), NULL, LOAD_None, NULL);
+		ABCHECK(Mont != nullptr);
 		PlayerAnim->SetMontageAnim(Mont);
-		GetMesh()->GetAnimInstance()->Montage_Play(Mont);
 		break;
 	}
 	case 2:
 	{
-		FString Anim_Path = TEXT("/Game/PlayerCharacter/Knight/KnightAnimation.KnightAnimation_C");
-		UClass* AssetAnim = StaticLoadClass(UAnimInstance::StaticClass(), NULL, *Anim_Path);
+		//FString Anim_Path = TEXT("/Game/PlayerCharacter/Knight/KnightAnimation.KnightAnimation_C");
+		//UClass* AssetAnim = StaticLoadClass(UAnimInstance::StaticClass(), NULL, *Anim_Path);
+
+		UClass* AssetAnim = LoadClass<UAnimInstance>(NULL,
+			TEXT("/Game/PlayerCharacter/Knight/KnightAnimation.KnightAnimation_C"), NULL, LOAD_None, NULL);
 		ABCHECK(AssetAnim != nullptr);
 		GetMesh()->SetAnimInstanceClass(AssetAnim);
 		UE_LOG(LogTemp, Log, TEXT("Load %d"), 2);
 		UAnimMontage* Mont = LoadObject<UAnimMontage>(NULL,
 			TEXT("/Game/PlayerCharacter/Knight/KnightATKMontage.KnightATKMontage"), NULL, LOAD_None, NULL);
+
 		PlayerAnim->SetMontageAnim(Mont);
-		GetMesh()->GetAnimInstance()->Montage_Play(Mont);
 		break;
 	}
 	}
 
-	GetMesh()->SetSkeletalMesh(AssetLoaded); // 스켈레탈 메시를 가져옴
+	PostInitializeComponents();
+
+	// GetMesh()->SetSkeletalMesh(AssetLoaded); // 스켈레탈 메시를 가져옴
 	//PlayerAnim->SetMontageAnim(AssetIndex);
 
 	//PostInitializeComponents();
