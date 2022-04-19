@@ -30,7 +30,7 @@ public:
 	FOnNextAttackCheckDelegate OnNextAttackCheck;
 	FOnAttackHitCheckDelegate OnAttackHitCheck;
 
-	void SetMontageAnim(int32 sel); // 애니메이션 몽타주를 선택할 함수
+	void SetMontageAnim(UAnimMontage* Mont); // 애니메이션 몽타주를 선택할 함수
 	void SetDeadAnim();
 
 	int32 charaClass;

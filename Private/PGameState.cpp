@@ -6,6 +6,7 @@
 APGameState::APGameState()
 {
 	TotalStageNums = 0;
+	bGameOver = false;
 }
 
 int32 APGameState::GetTotalStage() const
@@ -15,4 +16,14 @@ int32 APGameState::GetTotalStage() const
 void APGameState::AddStageNums()
 {
 	TotalStageNums++;
+}
+
+void APGameState::SetGameOver()
+{
+	bGameOver = true;
+}
+
+bool APGameState::IsGameOver() const
+{
+	return bGameOver;
 }

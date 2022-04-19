@@ -183,7 +183,7 @@ void APCharacter::BeginPlay()
 	AssetStreamingHandle = PGameInst->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad,
 		FStreamableDelegate::CreateUObject(this, &APCharacter::OnAssetLoadCompleted)); // 캐릭터 애셋을 가져옴
 	SetCharacterState(ECharacterState::LOADING);
-	PlayerAnim->SetMontageAnim(AssetIndex);
+	// PlayerAnim->SetMontageAnim(AssetIndex);
 
 }
 
@@ -261,7 +261,8 @@ void APCharacter::SetCharacterState(ECharacterState NewState)
 
 		if (bIsPlayer)
 		{
-			DisableInput(PController);
+			//DisableInput(PController);
+			PController->ShowGameOverUI();
 		}
 		else
 		{
@@ -666,6 +667,10 @@ void APCharacter::OnAssetLoadCompleted()
 		ABCHECK(AssetAnim != nullptr);
 		GetMesh()->SetAnimInstanceClass(AssetAnim);
 		UE_LOG(LogTemp, Log, TEXT("Load %d"), 0);
+		UAnimMontage* Mont = LoadObject<UAnimMontage>(NULL,
+			TEXT("/Game/PlayerCharacter/Ham/HammerATKMont.HammerATKMont"), NULL, LOAD_None, NULL);
+		PlayerAnim->SetMontageAnim(Mont);
+		GetMesh()->GetAnimInstance()->Montage_Play(Mont);
 		break;
 	}
 	case 1:
@@ -675,6 +680,10 @@ void APCharacter::OnAssetLoadCompleted()
 		ABCHECK(AssetAnim != nullptr);
 		GetMesh()->SetAnimInstanceClass(AssetAnim);
 		UE_LOG(LogTemp, Log, TEXT("Load %d"), 1);
+		UAnimMontage* Mont = LoadObject<UAnimMontage>(NULL,
+			TEXT("/Game/PlayerCharacter/Hand2/Hand2ATKMont.Hand2ATKMont"), NULL, LOAD_None, NULL);
+		PlayerAnim->SetMontageAnim(Mont);
+		GetMesh()->GetAnimInstance()->Montage_Play(Mont);
 		break;
 	}
 	case 2:
@@ -684,11 +693,13 @@ void APCharacter::OnAssetLoadCompleted()
 		ABCHECK(AssetAnim != nullptr);
 		GetMesh()->SetAnimInstanceClass(AssetAnim);
 		UE_LOG(LogTemp, Log, TEXT("Load %d"), 2);
+		UAnimMontage* Mont = LoadObject<UAnimMontage>(NULL,
+			TEXT("/Game/PlayerCharacter/Knight/KnightATKMontage.KnightATKMontage"), NULL, LOAD_None, NULL);
+		PlayerAnim->SetMontageAnim(Mont);
+		GetMesh()->GetAnimInstance()->Montage_Play(Mont);
 		break;
 	}
 	}
-
-	// GetMesh()->SetAnimInstanceClass(ANImap[AssetIndex]); // 애니메이션도 전환시킴
 
 	GetMesh()->SetSkeletalMesh(AssetLoaded); // 스켈레탈 메시를 가져옴
 	//PlayerAnim->SetMontageAnim(AssetIndex);

@@ -20,7 +20,13 @@ public:
 	int32 GetTotalStage() const;
 	void AddStageNums();
 
+	void SetGameOver();
+	bool IsGameOver() const;
+
 private:
 	UPROPERTY(Transient)
 		int32 TotalStageNums;
+
+	UPROPERTY(Transient)
+		bool bGameOver;
 };
