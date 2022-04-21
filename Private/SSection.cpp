@@ -33,10 +33,14 @@ void ASSection::setState(ESectionState NewState)
 	{
 	case ESectionState::READY:
 	{
+		// 플레이어가 다음 업그레이드를 결정하는 단계
+		
 		break;
 	}
 	case ESectionState::BATTLE:
 	{
+		// 플레이어가 업그레이드를 결정하고 시작 버튼을 눌렀을 때 시작하는 단계
+		// NPC를 스폰함
 		GetWorld()->GetTimerManager().SetTimer(SpawnNPCTimerHandle,
 			FTimerDelegate::CreateUObject(this, &ASSection::OnNPCSpawn),
 			EnemySpawnTime, false);
@@ -48,6 +52,7 @@ void ASSection::setState(ESectionState NewState)
 	}
 	case ESectionState::COMPLETE:
 	{
+		// NPC를 다 죽이고 난 후
 		break;
 	}
 	}

@@ -16,6 +16,7 @@
 
 DECLARE_MULTICAST_DELEGATE(FOnAttackEndDelegate);
 //AI에게 공격명령을 내리고 공격이 종료되면 공격 태스크에서 알림을 받을 수 있도록 하는 델리게이트
+DECLARE_MULTICAST_DELEGATE(FOnDamagedEndDelegate);
 
 UCLASS()
 class UPGRADE_API APCharacter : public ACharacter
@@ -101,6 +102,11 @@ public:
 	void Attack();
 	FOnAttackEndDelegate OnAttackEnd;
 
+	//// 피격 함수
+	//void BeingDamaged();
+	//FOnDamagedEndDelegate OnDamagedEnd;
+	
+
 	// 캐릭터 상태를 가져오거나 설정하는 함수
 	void SetCharacterState(ECharacterState NewState);
 	ECharacterState GetCharacterState() const;
@@ -128,10 +134,17 @@ private:
 	UPROPERTY()
 		class UPAnimInstance* PlayerAnim;
 
+	// 공격 모션 처리
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		bool IsAttacking;
 	UFUNCTION()
 		void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	//// 데미지를 받은 경우 처리
+	//UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+	//	bool IsDamaged;
+	//UFUNCTION()
+	//	void OnDamagedMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	void AttackStartComboState();
 	void AttackEndComboState();

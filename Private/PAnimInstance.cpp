@@ -12,24 +12,19 @@ UPAnimInstance::UPAnimInstance()
 	IsInAir = false;
 	IsDead = false;
 
-	
+	AttackMontage = nullptr; // 비동기 로딩으로 불러올 것이여서 당장은 필요 없음
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Hammer(TEXT("/Game/PlayerCharacter/Ham/HammerATKMont.HammerATKMont"));
-	if (Attack_Montage_Hammer.Succeeded()) MontMap.Add(0, Attack_Montage_Hammer.Object);
+	static ConstructorHelpers::FObjectFinder<UAnimMontage>Damaged_Mont(
+		TEXT("/Game/PlayerCharacter/Knight/HitMontage.HitMontage"));
+	if (Damaged_Mont.Succeeded()) DamagedMontage = Damaged_Mont.Object;
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Hand2(TEXT("/Game/PlayerCharacter/Hand2/Hand2ATKMont.Hand2ATKMont"));
-	if (Attack_Montage_Hand2.Succeeded()) MontMap.Add(1, Attack_Montage_Hand2.Object);
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> Attack_Montage_Knight(TEXT("/Game/PlayerCharacter/Knight/KnightATKMontage.KnightATKMontage"));
-	if (Attack_Montage_Knight.Succeeded()) MontMap.Add(2, Attack_Montage_Knight.Object);
-	AttackMontage = nullptr;
 	charaClass = 0;
 }
 
 void UPAnimInstance::NativeBeginPlay()
 {
-	UE_LOG(LogTemp, Log, TEXT("Load %d"), 1);
-	AttackMontage = MontMap[1];
+
 }
 
 void UPAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -75,6 +70,17 @@ void UPAnimInstance::JumpToAttackMontageSection(int32 NewSection)
 	ABCHECK(!IsDead);
 	ABCHECK(Montage_IsPlaying(AttackMontage));
 	Montage_JumpToSection(GetAttackMontageSectionName(NewSection), AttackMontage);
+}
+
+void UPAnimInstance::PlayDamagedMontage()
+{
+	ABCHECK(!IsDead); // 죽었으면 출력 안함
+	ABCHECK(DamagedMontage != nullptr);
+	if (!Montage_IsPlaying(DamagedMontage))
+	{
+		Montage_Play(DamagedMontage, 1.0f);
+	}
+
 }
 
 

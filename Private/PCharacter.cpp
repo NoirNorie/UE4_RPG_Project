@@ -37,10 +37,7 @@ APCharacter::APCharacter()
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh>SK_Character(TEXT("SkeletalMesh'/Game/PlayerCharacter/Knight/Knight.Knight'"));
 	if (SK_Character.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Character.Object);
 	static ConstructorHelpers::FClassFinder<UAnimInstance>Character_Anim(TEXT("/Game/PlayerCharacter/Knight/KnightAnimation.KnightAnimation_C"));
-	if (Character_Anim.Succeeded())
-	{
-		GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
-	}
+	if (Character_Anim.Succeeded()) GetMesh()->SetAnimInstanceClass(Character_Anim.Class);
 
 	//static ConstructorHelpers::FClassFinder<UAnimInstance>AnimLoad1(TEXT("/Game/PlayerCharacter/Hammer/HammerAnimation.HammerAnimation_C"));
 	//if (AnimLoad1.Succeeded())
@@ -295,7 +292,6 @@ void APCharacter::PostInitializeComponents()
 	ABCHECK(nullptr != PlayerAnim);
 
 	PlayerAnim->OnMontageEnded.AddDynamic(this, &APCharacter::OnAttackMontageEnded);
-	UE_LOG(LogTemp, Log, TEXT("Montage Check %d"), 0);
 
 	PlayerAnim->OnNextAttackCheck.AddLambda([this]()->void {
 		ABLOG(Warning, TEXT("OnNextAttackCheck"));
@@ -306,7 +302,7 @@ void APCharacter::PostInitializeComponents()
 			PlayerAnim->JumpToAttackMontageSection(CurrentCombo);
 		}
 	});
-	UE_LOG(LogTemp, Log, TEXT("Montage Check %d"), 1);
+
 	PlayerAnim->OnAttackHitCheck.AddUObject(this, &APCharacter::AttackCheck);
 	// 공격 판정을 위해 애니메이션에 전달해준다.
 
@@ -356,8 +352,6 @@ void APCharacter::Tick(float DeltaTime)
 	}
 
 }
-
-
 
 // Called to bind functionality to input
 void APCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -520,6 +514,8 @@ void APCharacter::Attack()
 	}
 }
 
+
+
 void APCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	ABCHECK(IsAttacking);
@@ -530,6 +526,29 @@ void APCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	OnAttackEnd.Broadcast();
 	// 공격이 종료됨을 델리게이트로 알린다
 }
+
+//void APCharacter::BeingDamaged()
+//{
+//	ABLOG_S(Warning);
+//
+//	if (!IsPlayerControlled())
+//	{
+//		if (IsDamaged)
+//		{
+//			PlayerAnim->PlayDamagedMontage();
+//			IsDamaged = true;
+//		}
+//	}
+//
+//}
+//
+//void APCharacter::OnDamagedMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+//{
+//	ABCHECK(IsDamaged);
+//	IsDamaged = false;
+//	OnDamagedEnd.Broadcast();
+//	// 피격 상태가 종료되었다는 것을 알린다.
+//}
 
 void APCharacter::AttackStartComboState()
 {
@@ -612,10 +631,17 @@ float APCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& Dam
 			PCont->NPCKill(this);
 		}
 	}
+	else
+	{
+		PlayerAnim->PlayDamagedMontage();
+	}
 
 	return FinalDamage;
 }
 
+
+// 안쓰는 구문임
+// 이후 제거
 bool APCharacter::CanSetWeapon()
 {
 	ABLOG_S(Warning);
@@ -634,6 +660,8 @@ void APCharacter::SetWeapon(AWWeapon* NewWeapon)
 	}
 }
 
+
+
 void APCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -651,6 +679,8 @@ void APCharacter::PossessedBy(AController* NewController)
 
 }
 
+
+// 비동기 로딩을 수행할 함수
 void APCharacter::OnAssetLoadCompleted()
 {
 	USkeletalMesh* AssetLoaded = Cast<USkeletalMesh>(AssetStreamingHandle->GetLoadedAsset());
@@ -688,7 +718,6 @@ void APCharacter::OnAssetLoadCompleted()
 		UE_LOG(LogTemp, Log, TEXT("Load %d"), 1);
 		UAnimMontage* Mont = LoadObject<UAnimMontage>(NULL,
 			TEXT("/Game/PlayerCharacter/Hand2/Hand2ATKMont.Hand2ATKMont"), NULL, LOAD_None, NULL);
-		ABCHECK(Mont != nullptr);
 		PlayerAnim->SetMontageAnim(Mont);
 		break;
 	}

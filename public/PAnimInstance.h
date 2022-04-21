@@ -22,9 +22,12 @@ public:
 	virtual void NativeBeginPlay() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+	// 공격 몽타주
 	void PlayAttackMontage();
-
 	void JumpToAttackMontageSection(int32 NewSection);
+
+	// 피격 몽타주
+	void PlayDamagedMontage();
 
 	// 델리게이트
 	FOnNextAttackCheckDelegate OnNextAttackCheck;
@@ -38,6 +41,9 @@ public:
 	// 애니메이션 몽타주
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
 		UAnimMontage* AttackMontage;
+	// 애니메이션 몽타주
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
+		UAnimMontage* DamagedMontage;
 private:
 
 
@@ -59,10 +65,4 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 		bool IsDead;
-
-	FSoftObjectPath CharacterAssetToLoad = FSoftObjectPath(nullptr);
-	TSharedPtr<struct FStreamableHandle> AssetStreamingHandle;
-
-	TMap<int32, UAnimMontage*> MontMap;
-	bool unload = true;
 };
