@@ -42,10 +42,13 @@ void ASGameMode::PostInitializeComponents()
 	Super::PostInitializeComponents();
 	PGameState = Cast<APGameState>(GameState);
 }
-void ASGameMode::AddStageNums(class APPlayerController* StagePlayer)
+void ASGameMode::AddStageNums(APPlayerController* StagePlayer)
 {
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
 	{
+		// GetWorld()->GetPlayerControllerIterator()
+		// 현재 게임에 참여중인 플레이어 컨트롤러 목록을 얻는 함수
+
 		const auto PCont = Cast<APPlayerController>(It->Get());
 		if ((PCont != nullptr) && (PCont == StagePlayer))
 		{

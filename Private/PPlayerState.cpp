@@ -78,7 +78,7 @@ bool APPlayerState::AddEXP(int32 InComeExp)
 	return DidLevelUp;
 }
 
-void APPlayerState::AddStageNums()
+void APPlayerState::AddStageNums() // 현재 스테이지를 클리어 한 경우 증가되는 스테이지 수
 {
 	StageNums++;
 	OnPlayerStateChanged.Broadcast();

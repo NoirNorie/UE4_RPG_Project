@@ -7,6 +7,8 @@
 #include "GameFramework/PlayerController.h"
 #include "PPlayerController.generated.h"
 
+// 경험해보니 왠만한 위젯들은 여기에 장착하여 사용하는것이 편함
+
 /**
  * 
  */
@@ -28,6 +30,8 @@ public:
 
 	void ShowGameOverUI();
 
+	void ShowUpgradeWidget(); // 업그레이드 창을 띄워줄 함수
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -39,13 +43,19 @@ protected:
 		TSubclassOf<class UPPauseWidget> PauseWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = UI)
+		TSubclassOf<class UPUpgradeWidget> UpgradeWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = UI)
 		TSubclassOf<class UPGameOverWidget> GameOverWidgetClass;
+
 
 private:
 	UPROPERTY()
 		class UPHudWidget* HUDWidget;
 	UPROPERTY()
 		class APPlayerState* PState;
+	UPROPERTY()
+		class UPUpgradeWidget* UpgradeWidget;
 	UPROPERTY()
 		class UPPauseWidget* PauseWidget;
 	UPROPERTY()

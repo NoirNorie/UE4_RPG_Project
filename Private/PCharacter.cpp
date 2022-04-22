@@ -130,6 +130,8 @@ APCharacter::APCharacter()
 
 	DeadTimer = 5.0f;
 
+	bLoadComp = false;
+
 }
 
 // Called when the game starts or when spawned
@@ -180,8 +182,6 @@ void APCharacter::BeginPlay()
 	AssetStreamingHandle = PGameInst->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad,
 		FStreamableDelegate::CreateUObject(this, &APCharacter::OnAssetLoadCompleted)); // 캐릭터 애셋을 가져옴
 	SetCharacterState(ECharacterState::LOADING);
-	// PlayerAnim->SetMontageAnim(AssetIndex);
-
 }
 
 void APCharacter::SetCharacterState(ECharacterState NewState)
@@ -693,9 +693,6 @@ void APCharacter::OnAssetLoadCompleted()
 	{
 	case 0:
 	{
-		//FString Anim_Path = TEXT("/Game/PlayerCharacter/Ham/HamAnim.HamAnim_C");
-		//UClass* AssetAnim = StaticLoadClass(UAnimInstance::StaticClass(), NULL, *Anim_Path);
-
 		UClass* AssetAnim = LoadClass<UAnimInstance>(NULL,
 			TEXT("/Game/PlayerCharacter/Ham/HamAnim.HamAnim_C"), NULL, LOAD_None, NULL);
 		ABCHECK(AssetAnim != nullptr);
@@ -704,13 +701,15 @@ void APCharacter::OnAssetLoadCompleted()
 		UAnimMontage* Mont = LoadObject<UAnimMontage>(NULL,
 			TEXT("/Game/PlayerCharacter/Ham/HammerATKMont.HammerATKMont"), NULL, LOAD_None, NULL);
 		PlayerAnim->SetMontageAnim(Mont);
+		if (bLoadComp == false) // 1회만 수행하도록 막는다.
+		{
+			PostInitializeComponents();
+			bLoadComp = true;
+		}
 		break;
 	}
 	case 1:
 	{
-		//FString Anim_Path = TEXT("/Game/PlayerCharacter/Hand2/Hand2Anim.Hand2Anim_C");
-		//UClass* AssetAnim = StaticLoadClass(UAnimInstance::StaticClass(), NULL, *Anim_Path);
-
 		UClass* AssetAnim = LoadClass<UAnimInstance>(NULL,
 			TEXT("/Game/PlayerCharacter/Hand2/Hand2Anim.Hand2Anim_C"), NULL, LOAD_None, NULL);
 		ABCHECK(AssetAnim != nullptr);
@@ -719,13 +718,15 @@ void APCharacter::OnAssetLoadCompleted()
 		UAnimMontage* Mont = LoadObject<UAnimMontage>(NULL,
 			TEXT("/Game/PlayerCharacter/Hand2/Hand2ATKMont.Hand2ATKMont"), NULL, LOAD_None, NULL);
 		PlayerAnim->SetMontageAnim(Mont);
+		if (bLoadComp == false) // 1회만 수행하도록 막는다.
+		{
+			PostInitializeComponents();
+			bLoadComp = true;
+		}
 		break;
 	}
 	case 2:
 	{
-		//FString Anim_Path = TEXT("/Game/PlayerCharacter/Knight/KnightAnimation.KnightAnimation_C");
-		//UClass* AssetAnim = StaticLoadClass(UAnimInstance::StaticClass(), NULL, *Anim_Path);
-
 		UClass* AssetAnim = LoadClass<UAnimInstance>(NULL,
 			TEXT("/Game/PlayerCharacter/Knight/KnightAnimation.KnightAnimation_C"), NULL, LOAD_None, NULL);
 		ABCHECK(AssetAnim != nullptr);
@@ -739,13 +740,8 @@ void APCharacter::OnAssetLoadCompleted()
 	}
 	}
 
-	PostInitializeComponents();
 
-	// GetMesh()->SetSkeletalMesh(AssetLoaded); // 스켈레탈 메시를 가져옴
-	//PlayerAnim->SetMontageAnim(AssetIndex);
 
-	//PostInitializeComponents();
-	// 애셋을 가져오고 애니메이션을 가져오는 것 까지 성공했다면 준비 상태로 전환시킨다.
 	SetCharacterState(ECharacterState::READY);
 }
 

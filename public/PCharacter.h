@@ -129,7 +129,7 @@ private:
 
 	// 비동기 로딩을 수행할 함수
 	void OnAssetLoadCompleted();
-
+	bool bLoadComp;
 
 	UPROPERTY()
 		class UPAnimInstance* PlayerAnim;
