@@ -44,6 +44,7 @@ void ASGameMode::PostInitializeComponents()
 }
 void ASGameMode::AddStageNums(APPlayerController* StagePlayer)
 {
+	UE_LOG(LogTemp, Log, TEXT("add"));
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
 	{
 		// GetWorld()->GetPlayerControllerIterator()
@@ -53,6 +54,8 @@ void ASGameMode::AddStageNums(APPlayerController* StagePlayer)
 		if ((PCont != nullptr) && (PCont == StagePlayer))
 		{
 			PCont->AddStageNums();
+			UE_LOG(LogTemp, Log, TEXT("check"))
+			PCont->ShowUpgradeWidget();
 			break;
 		}
 	}

@@ -23,17 +23,22 @@ protected:
 	void UpdateCharacterStat();
 	void UpdatePlayerState();
 
-private:
-
-	TWeakObjectPtr<class UPCharacterStatComponent> CurrentCharacterStat;
-	TWeakObjectPtr<class APPlayerState> CurrentPlayerState;
+	UFUNCTION()
+		void OnExitClicked();
 
 	UPROPERTY()
 		class UTextBlock* TB_Gold;
 	UPROPERTY()
 		class UTextBlock* TB_Stage;
 	UPROPERTY()
-		class UButton* BT_Exit;
-	UPROPERTY()
-		class UPUpgradeWidgetBT* UI_UpgradeBT;
+		class UButton* BT_EXIT;
+	//UPROPERTY()
+	//	class UPUpgradeWidgetBT* UI_UpgradeBT;
+
+private:
+
+	TWeakObjectPtr<class UPCharacterStatComponent> CurrentCharacterStat;
+	TWeakObjectPtr<class APPlayerState> CurrentPlayerState;
+
+
 };

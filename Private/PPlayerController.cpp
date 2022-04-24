@@ -41,7 +41,12 @@ void APPlayerController::BeginPlay()
 	GameOverWidget = CreateWidget<UPGameOverWidget>(this, GameOverWidgetClass); // 추가만 해놓음
 	ABCHECK(GameOverWidget != nullptr);
 
-
+	UpgradeWidget = CreateWidget<UPUpgradeWidget>(this, UpgradeWidgetClass);
+	ABCHECK(UpgradeWidget != nullptr);
+	UpgradeWidget->AddToViewport(2);
+	//SetPause(true);
+	//ChangeInputMode(false); // 업그레이드 선택 중에는 게임 진행을 멈춤
+	// ShowUpgradeWidget();
 
 	//auto PState = Cast<APPlayerState>(PlayerState);
 	PState = Cast<APPlayerState>(PlayerState);
@@ -83,8 +88,6 @@ void APPlayerController::OnGamePause()
 
 void APPlayerController::ShowUpgradeWidget()
 {
-	UpgradeWidget = CreateWidget<UPUpgradeWidget>(this, UpgradeWidgetClass);
-	ABCHECK(UpgradeWidget != nullptr);
 	UpgradeWidget->AddToViewport(2);
 	SetPause(true);
 	ChangeInputMode(false); // 업그레이드 선택 중에는 게임 진행을 멈춤

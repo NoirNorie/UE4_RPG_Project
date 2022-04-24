@@ -7,6 +7,7 @@
 #include "PCharacterStatComponent.h"
 #include "PUpgradeWidgetBT.h"
 #include "PPlayerState.h"
+#include "PPlayerController.h"
 
 void UPUpgradeWidget::BindCharacterStat(class UPCharacterStatComponent* CharacterStat)
 {
@@ -27,10 +28,22 @@ void UPUpgradeWidget::NativeConstruct()
 	ABCHECK(TB_Gold != nullptr);
 	TB_Stage = Cast<UTextBlock>(GetWidgetFromName(TEXT("TB_Stage")));
 	ABCHECK(TB_Stage != nullptr);
-	BT_Exit = Cast<UButton>(GetWidgetFromName(TEXT("BT_Exit")));
-	ABCHECK(BT_Exit);
-	UI_UpgradeBT = Cast<UPUpgradeWidgetBT>(GetWidgetFromName(TEXT("UI_UpgradeBT")));
-	ABCHECK(UI_UpgradeBT);
+	BT_EXIT = Cast<UButton>(GetWidgetFromName(TEXT("BT_ToNext")));
+	ABCHECK(BT_EXIT != nullptr);
+	BT_EXIT->OnClicked.AddDynamic(this, &UPUpgradeWidget::OnExitClicked);
+
+	//UI_UpgradeBT = Cast<UPUpgradeWidgetBT>(GetWidgetFromName(TEXT("UI_UpgradeBT")));
+	//ABCHECK(UI_UpgradeBT);
+}
+
+void UPUpgradeWidget::OnExitClicked()
+{
+	auto PCont = Cast<APPlayerController>(GetOwningPlayer());
+	ABCHECK(PCont != nullptr);
+	RemoveFromParent();
+
+	PCont->ChangeInputMode(true);
+	PCont->SetPause(false);
 }
 
 void UPUpgradeWidget::UpdateCharacterStat()

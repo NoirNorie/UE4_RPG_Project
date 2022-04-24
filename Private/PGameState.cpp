@@ -15,6 +15,8 @@ int32 APGameState::GetTotalStage() const
 }
 void APGameState::AddStageNums()
 {
+
+
 	TotalStageNums++;
 }
 
